@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-
+import {DataSource} from 'typeorm'
 dotenv.config({
   path: `env/${!process.env.NODE_ENV ? '.env.local' : `.env.${process.env.NODE_ENV}`}`,
 });
