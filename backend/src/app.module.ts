@@ -3,6 +3,8 @@ import { TelegrafModule } from 'nestjs-telegraf';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GatewayModule } from './modules/gateway/gateway.module';
+import { ApiModule } from './modules/api/api.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
     TelegramModule,
+    GatewayModule,
+    //ApiModule,
   ],
 })
 export class AppModule {}
