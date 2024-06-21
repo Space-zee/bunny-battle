@@ -6,6 +6,7 @@ import { WalletEntity } from '../../../db/entities/wallet.entity';
 import { IResponse } from '../../shared/interfaces/response.interface';
 import { ethers } from 'ethers';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -14,6 +15,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { RoomEntity } from '../../../db/entities/room.entity';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' } })
@@ -23,8 +25,8 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
   server: Server;
 
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(RoomEntity)
+    private readonly roomRepository: Repository<RoomEntity>,
     @InjectRepository(WalletEntity)
     private readonly walletRepository: Repository<WalletEntity>,
   ) {}
@@ -36,6 +38,33 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     console.log(socket.id);
 
     return payload; // return the same payload data
+  }
+
+  @SubscribeMessage('createLobby')
+  public async handleCreateLobby(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { telegramUserId: number; bet: string },
+  ) {
+    const room = await this.roomRepository.findOne({
+      where: { roomId: client.id },
+    });
+    if (!room) {
+      const roomEntity = this.roomRepository.create({
+        roomId: client.id,
+        status: 'active',
+        telegramUserId: body.telegramUserId,
+        bet: body.bet,
+      });
+      await this.roomRepository.save(roomEntity);
+
+      client.join(roomEntity.roomId);
+      this.server
+        .to(roomEntity.roomId)
+        .emit('roomCreated', { room, message: `Room ${room} has been created.` });
+      console.log(`Room ${room} created and ${client.id} joined`);
+    } else {
+      client.emit('error', { message: `Room ${room} already exists.` });
+    }
   }
 
   @SubscribeMessage('joinRoom')

@@ -27,7 +27,7 @@ import { ApiModule } from './modules/api/api.module';
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
         timezone: 'Z',
-        synchronize: false,
+        synchronize: true,
         entities: ['dist/db/entities/*.entity.js'],
         migrations: ['dist/db/migrations/*.js'],
         charset: 'utf8mb4',

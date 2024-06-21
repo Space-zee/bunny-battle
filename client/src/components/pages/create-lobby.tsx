@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Container } from "../general/container";
 import { WalletBalance } from "../general/wallet-balance";
 import { Input } from "../ui/input";
@@ -9,15 +9,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateLobbyValidationShcema,
-  createLobbyValidationShcema,
+  createLobbyValidationShcema
 } from "@/validation-schemas/create-lobby-validation.schema";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
+import { io } from "socket.io-client";
 
 interface LabelProps {
   children: ReactNode;
@@ -40,7 +35,7 @@ const ValueBlock = ({ children, isActive, onClick }: ValueBlockProps) => (
       "flex flex-1 py-[10px] max-w-28 items-center rounded-lg justify-center gap-[2px]",
       {
         "text-black bg-white": isActive,
-        "text-white bg-gn-900 cursor-pointer": !isActive,
+        "text-white bg-gn-900 cursor-pointer": !isActive
       }
     )}
   >
@@ -56,28 +51,45 @@ interface BetValue {
 
 const bets: BetValue[] = [
   {
-    value: "0.001",
+    value: "0.001"
   },
   {
-    value: "0.01",
+    value: "0.01"
   },
   {
-    value: "0.1",
+    value: "0.1"
   },
   {
     value: "1",
-    suffix: "🤟",
-  },
+    suffix: "🤟"
+  }
 ];
 
 const CreateLobby = () => {
   const form = useForm<CreateLobbyValidationShcema>({
-    resolver: zodResolver(createLobbyValidationShcema),
+    resolver: zodResolver(createLobbyValidationShcema)
   });
 
   const ethValue = form.watch("value");
 
-  const handleSubmit = (values: CreateLobbyValidationShcema) => {};
+  const socket = io("http://localhost:3000", { autoConnect: false });
+
+  const createLobby = () => {
+    socket.connect();
+    socket.emit("createLobby",  { telegramUserId: 1, bet: '1'  });
+  };
+
+  useEffect(() => {// connect to socket
+
+    socket.on("disconnect", () => { // fire when socked is disconnected
+      console.log("Socket disconnected");
+    });
+
+    // remove all event listeners
+    return () => {
+      socket.off("disconnect");
+    };
+  }, []);
 
   return (
     <>
@@ -145,6 +157,9 @@ const CreateLobby = () => {
             </div>
           </form>
         </Form>
+        <button onClick={createLobby}>
+          Create Lobby
+        </button>
       </Container>
       <WalletBalance />
     </>

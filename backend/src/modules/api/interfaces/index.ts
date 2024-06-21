@@ -3,3 +3,7 @@ export interface ICreateGameReq {
   roomId: string;
   coordinates: any;
 }
+
+export interface ICreateRoomReq {
+  telegramUserId: number;
+}
