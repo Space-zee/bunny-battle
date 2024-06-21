@@ -1,23 +1,10 @@
 import * as dotenv from 'dotenv';
-import { DataSource } from 'typeorm';
 
 dotenv.config({
   path: `env/${!process.env.NODE_ENV ? '.env.local' : `.env.${process.env.NODE_ENV}`}`,
 });
 
-export const dataSourceOptions: {
-  charset: string;
-  password: any;
-  database: any;
-  port: number;
-  entities: string[];
-  migrations: string[];
-  timezone: string;
-  host: any;
-  type: string;
-  username: any;
-  synchronize: boolean
-} = {
+export const dataSourceOptions ={
   type: 'mysql',
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
