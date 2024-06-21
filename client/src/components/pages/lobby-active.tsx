@@ -1,17 +1,7 @@
 import { AvailableRooms } from "../lobby/available-rooms";
-import { BottomBlock } from "../general/bottom-block";
 
 const LobbyActive = () => {
-  return (
-    <div className="flex w-full h-full flex-col justify-between">
-      <div className="flex flex-col gap-7 pt-9">
-        <h2 className="text-3xl font-bold text-center text-white">Lobby</h2>
-        <AvailableRooms />
-      </div>
-
-      <BottomBlock />
-    </div>
-  );
+  return <AvailableRooms />;
 };
 
 export { LobbyActive };

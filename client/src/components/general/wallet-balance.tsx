@@ -1,8 +1,12 @@
 import TgWebApp from "@twa-dev/sdk";
 import { TgButtons } from "@/lib/telegram";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { Container } from "./container";
+import { useBalance } from "wagmi";
+import { formatAddress, formatEthBalance } from "@/utils/strings";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const CopyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none">
@@ -16,14 +20,38 @@ const CopyIcon = () => (
   </svg>
 );
 
-const shortcutWallet = (wallet: string) => {
-  return (
-    wallet.slice(0, 4) + "..." + wallet.slice(wallet.length - 5, wallet.length)
-  );
-};
+const WalletBalance = () => {
+  const wallet = "0x5d54b69b9848415d8b7abd5cb19031ec472ea1c4";
 
-const BottomBlock = () => {
-  const wallet = "0xa2dD817c2fDc3a2996f1A5174CF8f1AaED466E82";
+  const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
+    {
+      address: wallet,
+    }
+  );
+
+  const formattedAmount = useMemo(() => {
+    if (!walletBalance) {
+      return null;
+    }
+
+    return formatEthBalance(walletBalance.formatted);
+  }, [walletBalance]);
+
+  const isWalletEmpty = useMemo(() => {
+    if (isWalletBalanceLoading) {
+      return false;
+    }
+
+    if (formattedAmount === null) {
+      return true;
+    }
+
+    return false;
+  }, [formattedAmount, isWalletBalanceLoading]);
+
+  const handleCopyAddress = () => {
+    toast("Address was copied");
+  };
 
   const handleShowMainButton = () => {};
 
@@ -38,16 +66,29 @@ const BottomBlock = () => {
   }, []);
 
   return (
-    <div className="fixed w-full bottom-[100px] left-0">
+    <div
+      className="fixed w-full bottom-[100px] left-0"
+      onClick={() => handleCopyAddress()}
+    >
       <Container>
-        <div className="w-full flex items-center justify-between border-4 border-teal-400 rounded-[24px] border-spacing-1 px-3 py-2">
+        <div
+          className={cn(
+            "w-full flex items-center justify-between rounded-[24px] border-spacing-1 px-3 py-2 bg-gn-950",
+            {
+              "border-4 border-teal-400": isWalletEmpty,
+              "border-2 border-gn-800": !isWalletEmpty,
+            }
+          )}
+        >
           <CopyIcon />
           <div className="flex items-center gap-1">
             <span className="text-wite font-semibold">
-              {shortcutWallet(wallet)} ⋅
+              {formatAddress(wallet)} ⋅
             </span>
             <span className="font-semibold text-gn-500">My balance</span>
-            <span className="text-white font-semibold">0.000 ETH</span>
+            <span className="text-white font-semibold">
+              {formattedAmount} ETH
+            </span>
           </div>
         </div>
       </Container>
@@ -55,4 +96,4 @@ const BottomBlock = () => {
   );
 };
 
-export { BottomBlock };
+export { WalletBalance };
