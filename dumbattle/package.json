@@ -1,0 +1,11 @@
+{
+  "name": "dumbattle",
+  "version": "1.0.0",
+  "description": "ZK protocol for simple battleship gaming on-chain ",
+  "main": "index.js",
+  "author": "Na3aga (DumBattle ETHKyiv team)",
+  "license": "MIT",
+  "dependencies": {
+    "circomlib": "^2.0.5"
+  }
+}
