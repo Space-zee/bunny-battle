@@ -6,16 +6,16 @@ const AvailableRooms = () => {
     { name: "@kolom", value: "0.001" },
     { name: "@kolom", value: "0.001" },
     { name: "@kolom", value: "0.001" },
-    // { name: "@kolom", value: "0.001" },
-    // { name: "@kolom", value: "0.001" },
-    // { name: "@kolom", value: "0.001" },
-    // { name: "@kolom", value: "0.001" },
-    // { name: "@kolom", value: "0.001" },
-    // { name: "@kolom", value: "0.001" },
+    { name: "@kolom", value: "0.001" },
+    { name: "@kolom", value: "0.001" },
+    { name: "@kolom", value: "0.001" },
+    { name: "@kolom", value: "0.001" },
+    { name: "@kolom", value: "0.001" },
+    { name: "@kolom", value: "0.001" },
   ];
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 pb-[20px]">
       {items.map((item) => (
         <div
           key={item.name}

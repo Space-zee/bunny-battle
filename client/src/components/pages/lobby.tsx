@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { Container } from "../general/container";
-import { BottomBlock } from "../general/bottom-block";
+import { WalletBalance } from "../general/wallet-balance";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 
@@ -64,7 +64,7 @@ const Lobby = () => {
           <Outlet />
         </div>
       </Container>
-      <BottomBlock />
+      <WalletBalance />
     </div>
   );
 };

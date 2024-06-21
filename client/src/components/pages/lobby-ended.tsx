@@ -1,5 +1,5 @@
 const LobbyEnded = () => {
-  return <div>lobby-ended</div>;
+  return <div className="w-full flex flex-col gap-2"></div>;
 };
 
 export { LobbyEnded };
