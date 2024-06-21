@@ -67,7 +67,7 @@ const WalletBalance = () => {
 
   return (
     <div
-      className="fixed w-full bottom-[100px] left-0"
+      className="fixed w-full bottom-[60px] left-0"
       onClick={() => handleCopyAddress()}
     >
       <Container>

@@ -13,6 +13,7 @@ import { Lobby } from "./components/pages/lobby";
 import { LobbyActive } from "./components/pages/lobby-active";
 import { LobbyEnded } from "./components/pages/lobby-ended";
 import { Toaster } from "./components/ui/sonner";
+import { CreateLobby } from "./components/pages/create-lobby";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
         element: <LobbyEnded />,
       },
     ],
+  },
+  {
+    path: "/create-lobby",
+    element: <CreateLobby />,
   },
 ]);
 
