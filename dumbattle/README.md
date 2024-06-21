@@ -4,6 +4,9 @@ This project demonstrates a basic Hardhat use case. It comes with a sample contr
 
 Try running some of the following tasks:
 
+### Additionally, install circom compiler and snarkjs globally
+- https://docs.circom.io/getting-started/installation/
+
 ```shell
 
 yarn install
