@@ -10,7 +10,7 @@ for contract in $CONTRACTS; do
   rm -rf circom/$contract
   mkdir circom/$contract
 
-  circom circuits/$contract.circom --r1cs --wasm -o circom/$contract
+  circom circuits/$contract.circom --r1cs --wasm --sym -o circom/$contract
   cd circom/$contract
   node ${contract}_js/generate_witness.js ${contract}_js/${contract}.wasm ../../circuits/${contract}.json witness.wtns
   snarkjs powersoftau new bn128 12 pot12_0000.ptau

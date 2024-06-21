@@ -3,8 +3,8 @@ pragma circom 2.0.0;
 include "../node_modules/circomlib/circuits/poseidon.circom";
 include "./consts.circom";
 
-function isMatch(guess, ship, len) {
-    return (guess[0] == ship[0] && guess[1] == ship[1])
+function isMatch(guess, ship) {
+  return (guess[0] == ship[0] && guess[1] == ship[1]);
 }
 
 template BattleshipMove() {
