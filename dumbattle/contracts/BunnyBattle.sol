@@ -61,6 +61,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
 
     g.player2 = msg.sender;
     g.player2Hash = _boardHash;
+    g.nextMoveDeadline = block.timestamp + makeMoveTimestamp;
     emit GameJoined(_gameID, msg.sender);
   }
 
@@ -141,6 +142,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
       player2: g.player2,
       player2Hash: g.player2Hash,
       totalBetAmount: g.totalBetAmount,
+      nextMoveDeadline: g.nextMoveDeadline,
       moves: _moves
     });
   }
@@ -187,14 +189,12 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     Game storage g = games[_gameID];
     if (g.winner != address(0)){
       if(winner != g.winner) revert InvalidWinner();
-    } else if (g.movesSize == 0 ) {
-      if(winner != g.player2) revert InvalidWinner();
-    } else if (g.nextMoveDeadline > block.timestamp) {
+    } else if (g.nextMoveDeadline < block.timestamp) {
       // get player who did last move
       if (g.movesSize % 2 == 0) {
-      if(winner != g.player1) revert InvalidWinner();
+        if(winner != g.player1) revert InvalidWinner();
       } else {
-      if(winner != g.player2) revert InvalidWinner();
+        if(winner != g.player2) revert InvalidWinner();
       }
     }
     

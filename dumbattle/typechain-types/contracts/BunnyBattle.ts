@@ -39,6 +39,7 @@ export declare namespace IBunnyBattle {
     player1Hash: BigNumberish;
     player2Hash: BigNumberish;
     totalBetAmount: BigNumberish;
+    nextMoveDeadline: BigNumberish;
     moves: IBunnyBattle.MoveStruct[];
   };
 
@@ -49,6 +50,7 @@ export declare namespace IBunnyBattle {
     player1Hash: bigint,
     player2Hash: bigint,
     totalBetAmount: bigint,
+    nextMoveDeadline: bigint,
     moves: IBunnyBattle.MoveStructOutput[]
   ] & {
     player1: string;
@@ -57,6 +59,7 @@ export declare namespace IBunnyBattle {
     player1Hash: bigint;
     player2Hash: bigint;
     totalBetAmount: bigint;
+    nextMoveDeadline: bigint;
     moves: IBunnyBattle.MoveStructOutput[];
   };
 }

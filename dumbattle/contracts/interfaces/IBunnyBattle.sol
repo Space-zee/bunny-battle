@@ -29,6 +29,7 @@ contract IBunnyBattle {
     uint256 player1Hash;
     uint256 player2Hash;
     uint256 totalBetAmount;
+    uint256 nextMoveDeadline;
     Move[] moves;
   }
 

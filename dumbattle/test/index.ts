@@ -1,7 +1,7 @@
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Address } from "cluster";
-import { ContractTransactionReceipt, parseEther } from "ethers";
+import { ContractTransactionReceipt, parseEther, ZeroAddress } from "ethers";
 import { ethers } from "hardhat";
 import { BunnyBattle } from "../typechain-types";
 
@@ -214,6 +214,88 @@ describe("Battleship", function () {
     const gasCostForTxn = receipt.gasUsed * receipt.gasPrice
     expect(await ethers.provider.getBalance(bunnyBattle.getAddress())).to.be.eq("0");
     expect(await ethers.provider.getBalance(owner.address)).to.be.eq(prevBalanceOwner + commission - gasCostForTxn);
+  });
+
+  it("TechnicalLose possible", async function () {
+    const [account1, account2] = await ethers.getSigners();
+
+    const proof1 = await genCreateProof(player1Create);
+    await bunnyBattle.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
+    let game = await bunnyBattle.game(0);
+
+    const proof2 = await genCreateProof(player2Create);
+    await bunnyBattle.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0],  { value: parseEther("1") });
+    game = await bunnyBattle.game(0);
+    expect(game.moves.length).to.equal(0);
+
+    await bunnyBattle.connect(account1).submitMove(0, 1, 2, emptyProof, false);
+    game = await bunnyBattle.game(0);
+    expect(game.moves.length).to.equal(1);
+    let prevMove = game.moves[0];
+
+    const proof3 = await genMoveProof({
+      // Public Inputs
+      'boardHash': game.player2Hash.toString(),
+      'guess': [prevMove.x, prevMove.y],
+      // Private Inputs:
+      'nonce': player2Create.nonce,
+      'ships': player2Create.ships,
+    });
+    await bunnyBattle.connect(account2).submitMove(0, 0, 0, proof3.solidityProof, false);
+    game = await bunnyBattle.game(0);
+    expect(game.moves.length).to.equal(2);
+    expect(game.moves[0].isHit).to.equal(false);
+    prevMove = game.moves[1];
+    expect(prevMove.x).to.eq(BigInt(0));
+    expect(prevMove.y).to.eq(BigInt(0));
+    expect(game.winner).to.eq(ZeroAddress);
+
+    let block = await ethers.provider.getBlock("latest");
+    let timestamp = block.timestamp;
+    const tmpTimestamp = game.nextMoveDeadline;
+    expect(tmpTimestamp).to.be.greaterThan(timestamp); // timestamp is changed correctly 
+
+    // // Move time forward by lesst than 1 min (58 seconds)
+    await ethers.provider.send("evm_increaseTime", [58]);
+    await ethers.provider.send("evm_mine", []);
+    
+
+    const proof4 = await genMoveProof({
+      // Public Inputs
+      'boardHash': game.player1Hash.toString(),
+      'guess': [prevMove.x, prevMove.y],
+      // Private Inputs:
+      'nonce': player1Create.nonce,
+      'ships': player1Create.ships,
+    });
+    await bunnyBattle.connect(account1).submitMove(0, 2, 1, proof4.solidityProof, true);
+    game = await bunnyBattle.game(0);
+    prevMove = game.moves[2];
+    block = await ethers.provider.getBlock("latest");
+    timestamp = block.timestamp;
+    const lastNextTimestamp = game.nextMoveDeadline;
+    expect(lastNextTimestamp).to.be.lessThanOrEqual(tmpTimestamp + BigInt(60)); // timestamp is changed correctly 
+
+    // // Move time forward by 1 min (60 seconds)
+    await ethers.provider.send("evm_increaseTime", [60]);
+    await ethers.provider.send("evm_mine", []);
+
+    const proof5 = await genMoveProof({
+      // Public Inputs
+      'boardHash': game.player2Hash.toString(),
+      'guess': [prevMove.x, prevMove.y],
+      // Private Inputs:
+      'nonce': player2Create.nonce,
+      'ships': player2Create.ships,
+    });
+    block = await ethers.provider.getBlock("latest");
+    expect(lastNextTimestamp).to.be.lessThanOrEqual(block?.timestamp); // timestamp is changed correctly 
+    await expect(bunnyBattle.connect(account2).submitMove(0, 2, 2, proof5.solidityProof, true)).to.be.rejectedWith("TechnicalLose");
+
+    game = await bunnyBattle.game(0);
+    expect(game.winner).to.eq(ZeroAddress);
+    
+    // check claimReward
   });
 });
 
