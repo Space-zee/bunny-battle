@@ -1,5 +1,3 @@
-import TgWebApp from "@twa-dev/sdk";
-import { TgButtons } from "@/lib/telegram";
 import { useEffect, useMemo } from "react";
 
 import { Container } from "./container";

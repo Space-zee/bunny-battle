@@ -14,8 +14,7 @@ import { LobbyActive } from "./components/pages/lobby-active";
 import { LobbyEnded } from "./components/pages/lobby-ended";
 import { Toaster } from "./components/ui/sonner";
 import { CreateLobby } from "./components/pages/create-lobby";
-import { StartGame } from "./components/pages/start-game";
-import { LobbyCreated } from "@/components/pages/lobbyCreated.tsx";
+import { Game } from "./components/pages/game";
 
 const router = createBrowserRouter([
   {
@@ -34,10 +33,10 @@ const router = createBrowserRouter([
         path: "ended",
         element: <LobbyEnded />,
       },
-      {
-        path: ":id",
-        element: <LobbyCreated />,
-      },
+      // {
+      //   path: ":id",
+      //   element: <LobbyCreated />,
+      // },
     ],
   },
   {
@@ -45,8 +44,8 @@ const router = createBrowserRouter([
     element: <CreateLobby />,
   },
   {
-    path: "/start-game",
-    element: <StartGame />,
+    path: "/game/:id",
+    element: <Game />,
   },
 ]);
 
