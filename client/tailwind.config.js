@@ -22,13 +22,19 @@ module.exports = {
         gn: { // grey neutral
           400: '#9DA4AE',
           500: '#6C737F',
+          600: '#4D5761',
+          700: '#384250',
           800: '#1F2A37',
           900: '#111927',
           950: '#0D121C'
         },
-        tail: {
-          300: '#5FE9D0',
-          400: '#2ED3B7'
+        fuchisia: {
+          300: '#EEAAFD',
+          400: '#E478FA',
+          500: '#D444F1'
+        },
+        error: {
+          800: '#912018'
         },
         // CUSTOM COLORS END
         border: "hsl(var(--border))",
@@ -45,8 +51,7 @@ module.exports = {
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
-          // DEFAULT: "hsl(var(--destructive))",
-          DEFAULT: '#be3535',
+          DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {

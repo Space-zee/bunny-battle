@@ -4,20 +4,24 @@ import { Container } from "../general/container";
 import { WalletBalance } from "../general/wallet-balance";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import { apiBaseUrl } from "@/constants/api.constant.ts";
 
 
 const LobbyCreated = () => {
   const { pathname } = useLocation();
   const [, , roomId, isReadyLocal] = pathname.split("/");
   const [searchParams] = useSearchParams();
+  console.log('searchParams', Boolean(searchParams.get('isReady')))
   const [isReady, setIsReady] = useState(Boolean(searchParams.get('isReady')));
-  const socket = io("http://localhost:3000", { autoConnect: false });
+  const socket = io(apiBaseUrl, { autoConnect: false });
+console.log('pathname', pathname)
   useEffect(() => {// connect to socket
     socket.connect();
     socket.on("disconnect", () => { // fire when socked is disconnected
       console.log("Socket disconnected");
     });
     socket.on(`readyForBattle:${roomId}`, (body: any) => { // fire when socked is disconnected
+      console.log("readyForBattle", body);
       setIsReady(true)
     });
 

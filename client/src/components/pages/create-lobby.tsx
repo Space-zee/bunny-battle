@@ -9,14 +9,22 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateLobbyValidationShcema,
-  createLobbyValidationShcema
+  createLobbyValidationShcema,
 } from "@/validation-schemas/create-lobby-validation.schema";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
+import { PageTitle } from "../general/page-title";
 import { io } from "socket.io-client";
 import TgWebApp from "@twa-dev/sdk";
 import { useNavigate } from "react-router-dom";
 import { useAtom, useSetAtom } from "jotai";
-import * as coreModels from '../../core/models'
+import * as coreModels from "../../core/models";
+import { apiBaseUrl } from "@/constants/api.constant";
 
 interface LabelProps {
   children: ReactNode;
@@ -39,7 +47,7 @@ const ValueBlock = ({ children, isActive, onClick }: ValueBlockProps) => (
       "flex flex-1 py-[10px] max-w-28 items-center rounded-lg justify-center gap-[2px]",
       {
         "text-black bg-white": isActive,
-        "text-white bg-gn-900 cursor-pointer": !isActive
+        "text-white bg-gn-900 cursor-pointer": !isActive,
       }
     )}
   >
@@ -55,30 +63,30 @@ interface BetValue {
 
 const bets: BetValue[] = [
   {
-    value: "0.001"
+    value: "0.001",
   },
   {
-    value: "0.01"
+    value: "0.01",
   },
   {
-    value: "0.1"
+    value: "0.1",
   },
   {
     value: "1",
-    suffix: "🤟"
-  }
+    suffix: "🤟",
+  },
 ];
 
 const CreateLobby = () => {
   const form = useForm<CreateLobbyValidationShcema>({
-    resolver: zodResolver(createLobbyValidationShcema)
+    resolver: zodResolver(createLobbyValidationShcema),
   });
 
   const ethValue = form.watch("value");
   const [WebApp] = useAtom(coreModels.$webApp);
   const [TgButtons] = useAtom(coreModels.$tgButtons);
   const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
-  const socket = io("http://localhost:3000", { autoConnect: false });
+  const socket = io(apiBaseUrl, { autoConnect: false });
   const navigate = useNavigate();
 
   const onBack = () => {
@@ -88,25 +96,32 @@ const CreateLobby = () => {
 
   useEffect(() => {
     $doLoadWebApp();
-    if(TgButtons){
+    if (TgButtons) {
       TgButtons.showMainButton(createLobby, {
         color: "#2ED3B7",
         text: "Confirm",
         text_color: "#000000",
         is_active: !!ethValue,
-        is_visible: true
+        is_visible: true,
       });
     }
   }, [WebApp]);
 
-  useEffect(() => {// connect to socket
+  useEffect(() => {
+    // connect to socket
     socket.connect();
-    socket.on("disconnect", () => { // fire when socked is disconnected
+    socket.on("disconnect", () => {
+      // fire when socked is disconnected
       console.log("Socket disconnected");
     });
-    socket.on(`roomCreated:${TgWebApp.initDataUnsafe.user!.id}`, (body: any) => { // fire when socked is disconnected
-      navigate(`/lobby/${body.roomId}`);
-    });
+    socket.on(
+      `roomCreated:${TgWebApp.initDataUnsafe.user!.id}`,
+      (body: any) => {
+        // fire when socked is disconnected
+        console.log("roomCreated", body);
+        navigate(`/lobby/${body.roomId}`);
+      }
+    );
 
     // remove all event listeners
     return () => {
@@ -118,37 +133,33 @@ const CreateLobby = () => {
 
   const createLobby = () => {
     socket.connect();
-    socket.emit("createLobby", { bet: ethValue, telegramUserId: TgWebApp.initDataUnsafe.user!.id });
+    socket.emit("createLobby", {
+      bet: ethValue,
+      telegramUserId: TgWebApp.initDataUnsafe.user!.id,
+    });
   };
 
   useEffect(() => {
-
-    TgButtons?.showBackButton(onBack)
+    TgButtons?.showBackButton(onBack);
     TgButtons?.showMainButton(createLobby, {
       color: "#2ED3B7",
       text: "Confirm",
       text_color: "#000000",
       is_active: !!ethValue,
-      is_visible: true
+      is_visible: true,
     });
   }, [ethValue]);
 
-
-
-  const handleSubmit = () => {
-  };
+  const handleSubmit = () => {};
 
   return (
     <>
       <Container className="flex flex-col gap-7">
-        <div className="flex items-center justify-center gap-1 mt-[88px] w-full">
-          <h2 className="text-3xl font-bold text-center text-white flex">
-            Create
-          </h2>
-          <h2 className="text-3xl font-bold text-center flex text-teal-400">
-            DumBattle
-          </h2>
-        </div>
+        <PageTitle>
+          <span>Create</span>
+          <span className="text-fuchisia-400">DumBattle</span>
+        </PageTitle>
+
         <Form {...form}>
           <form
             className="flex flex-col gap-5 w-full"
@@ -174,9 +185,7 @@ const CreateLobby = () => {
               />
             </div>
             <div className="flex flex-col w-full gap-2">
-              <button onClick={createLobby}>
-                Create
-              </button>
+              <button onClick={createLobby}>Create</button>
               <Label>Or use presset</Label>
               <div className="flex gap-1 w-full">
                 {bets.map((bet) => (

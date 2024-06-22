@@ -1,0 +1,41 @@
+services:
+  mysqldb:
+    platform: linux/amd64
+    image: mysql:5.7.42
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "hack"
+      MYSQL_ROOT_PASSWORD: "admin"
+    expose:
+      - "3306"
+    ports:
+      - 3306:3306
+    volumes:
+      - mysqlvolume:/var/lib/mysql
+    container_name: mysqldbHack
+      #networks:
+      #- dark-seller-net
+
+  backend:
+    depends_on:
+      - mysqldb
+    build: .
+    expose:
+      - "80"
+      - "443"
+    ports:
+      - 80:3000
+    environment:
+      DB_HOST: mysqldb
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: admin
+      DB_NAME: hack
+      TELEGRAM_BOT_TOKEN: 6083890376:AAEEtN4ogkVVTel4yOw39KELwp-uHnTp03s
+
+volumes:
+  mysqlvolume:
+
+networks:
+  dark-seller-net:
+    driver: bridge

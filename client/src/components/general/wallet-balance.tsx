@@ -1,5 +1,3 @@
-import TgWebApp from "@twa-dev/sdk";
-import { TgButtons } from "@/lib/telegram";
 import { useEffect, useMemo } from "react";
 
 import { Container } from "./container";
@@ -7,6 +5,7 @@ import { useBalance } from "wagmi";
 import { formatAddress, formatEthBalance } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useCopyToClipboard } from "usehooks-ts";
 import { useNavigate } from "react-router-dom";
 import { useAtom, useSetAtom } from "jotai/index";
 import * as coreModels from "@/core/models";
@@ -24,51 +23,64 @@ const CopyIcon = () => (
 );
 
 const WalletBalance = () => {
+  const [_, copy] = useCopyToClipboard();
+
   const wallet = "0x5d54b69b9848415d8b7abd5cb19031ec472ea1c4";
   const navigate = useNavigate();
   const [WebApp] = useAtom(coreModels.$webApp);
   const [TgButtons] = useAtom(coreModels.$tgButtons);
   const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
-  // const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
-  //   {
-  //     address: wallet
-  //   }
-  // );
+  const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
+    {
+      address: wallet,
+    }
+  );
 
-  // const formattedAmount = useMemo(() => {
-  //   if (!walletBalance) {
-  //     return null;
-  //   }
-  //
-  //   return formatEthBalance(walletBalance.formatted);
-  // }, [walletBalance]);
-  //
-  // const isWalletEmpty = useMemo(() => {
-  //   if (isWalletBalanceLoading) {
-  //     return false;
-  //   }
-  //
-  //   if (formattedAmount === null) {
-  //     return true;
-  //   }
-  //
-  //   return false;
-  // }, [formattedAmount, isWalletBalanceLoading]);
+  const formattedAmount = useMemo(() => {
+    if (!walletBalance) {
+      return null;
+    }
 
-  const handleCopyAddress = () => {
-    toast("Address was copied");
+    return formatEthBalance(walletBalance.formatted);
+  }, [walletBalance]);
+
+  const isWalletEmpty = useMemo(() => {
+    if (isWalletBalanceLoading) {
+      return false;
+    }
+
+    if (formattedAmount === null) {
+      return true;
+    }
+
+    return false;
+  }, [formattedAmount, isWalletBalanceLoading]);
+
+  const handleCopyAddress = async () => {
+    try {
+      await copy(wallet);
+      toast("Address was copied");
+    } catch (err) {
+      console.log("Can not copy wallet to clipboard");
+    }
   };
 
   const handleShowMainButton = () => {
-    navigate('/create-lobby')
+    navigate("/create-lobby");
   };
 
   useEffect(() => {
     $doLoadWebApp();
-   if(TgButtons){
-     TgButtons.hideBackButton()
-     TgButtons.showMainButton(handleShowMainButton, { color: "#2ED3B7", text: "Create DumBattle", text_color: "#000000", is_active: true, is_visible: true });
-   }
+    if (TgButtons) {
+      TgButtons.hideBackButton();
+      TgButtons.showMainButton(handleShowMainButton, {
+        color: "#2ED3B7",
+        text: "Create DumBattle",
+        text_color: "#000000",
+        is_active: true,
+        is_visible: true,
+      });
+    }
   }, [WebApp]);
 
   return (
@@ -81,8 +93,8 @@ const WalletBalance = () => {
           className={cn(
             "w-full flex items-center justify-between rounded-[24px] border-spacing-1 px-3 py-2 bg-gn-950",
             {
-              "border-4 border-teal-400": true,
-              "border-2 border-gn-800": !true
+              "border-4 border-fuchisia-400": isWalletEmpty,
+              "border-2 border-gn-800": !isWalletEmpty,
             }
           )}
         >
@@ -93,7 +105,7 @@ const WalletBalance = () => {
             </span>
             <span className="font-semibold text-gn-500">My balance</span>
             <span className="text-white font-semibold">
-              {0.008} ETH
+              {formattedAmount} ETH
             </span>
           </div>
         </div>

@@ -5,11 +5,12 @@ import { httpClient } from "@/core/httpClient";
 import { apiPaths } from "@/core/httpClient/apiPaths";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { apiBaseUrl } from "@/constants/api.constant";
 
 const AvailableRooms = () => {
   const [rooms, setRooms] = useState<IGetActiveRoomsRes[]>([]);
   const navigate = useNavigate();
-  const socket = io('http://localhost:3000'); // Replace with your server URL
+  const socket = io(apiBaseUrl); // Replace with your server URL
 
   useEffect(() => {
     const call = async () => {
