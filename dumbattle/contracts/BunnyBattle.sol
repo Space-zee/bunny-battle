@@ -124,6 +124,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     Game storage g = games[_gameID];
     if(g.nextMoveDeadline > block.timestamp || g.winner != address(0)) revert FailedToClaimReward();
     _claimReward(_gameID, msg.sender);
+    g.winner = msg.sender;
   }
 
   function game(uint32 _gameID) external view returns (GamePublicMetadata memory) {

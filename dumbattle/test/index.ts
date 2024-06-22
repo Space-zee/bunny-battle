@@ -296,7 +296,22 @@ describe("Battleship", function () {
     expect(game.winner).to.eq(ZeroAddress);
     
     // check claimReward
+    const prevBalanceAccount2 = await ethers.provider.getBalance(account2.address);
+
+    expect(game.winner).to.equal(ZeroAddress);
+
+    const tx = await bunnyBattle.connect(account2).claimReward(0);
+
+    const receipt: ContractTransactionReceipt = await tx.wait() as ContractTransactionReceipt;
+    const gasCostForTxn = receipt.gasUsed * receipt.gasPrice
+    const commission =  parseEther("2") *  parseEther("1") /  parseEther("100");
+    expect(await ethers.provider.getBalance(account2.address)).to.be.eq(prevBalanceAccount2 + parseEther("2") - commission - gasCostForTxn)
+  
+    game = await bunnyBattle.game(0);
+    expect(game.winner).to.equal(account2);
   });
+
+  
 });
 
 // Utils (should be split out of test/)
