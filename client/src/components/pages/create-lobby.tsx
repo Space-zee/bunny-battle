@@ -20,7 +20,6 @@ import {
 } from "../ui/form";
 import { PageTitle } from "../general/page-title";
 import { io } from "socket.io-client";
-import TgWebApp from "@twa-dev/sdk";
 import { useNavigate } from "react-router-dom";
 import { useAtom, useSetAtom } from "jotai";
 import * as coreModels from "../../core/models";
@@ -110,16 +109,17 @@ const CreateLobby = () => {
   useEffect(() => {
     // connect to socket
     socket.connect();
+    console.log('useEffect')
     socket.on("disconnect", () => {
       // fire when socked is disconnected
       console.log("Socket disconnected");
     });
     socket.on(
-      `roomCreated:${TgWebApp.initDataUnsafe.user!.id}`,
+      `roomCreated:${WebApp?.initDataUnsafe.user!.id}`,
       (body: any) => {
         // fire when socked is disconnected
         console.log("roomCreated", body);
-        navigate(`/lobby/${body.roomId}`);
+        navigate(`/game/${body.roomId}`);
       }
     );
 
@@ -127,7 +127,7 @@ const CreateLobby = () => {
     return () => {
       socket.off("disconnect");
       socket.off("connect");
-      socket.off(`roomCreated:${TgWebApp.initDataUnsafe.user!.id}`);
+      socket.off(`roomCreated:${WebApp.initDataUnsafe.user!.id}`);
     };
   }, []);
 
@@ -135,7 +135,7 @@ const CreateLobby = () => {
     socket.connect();
     socket.emit("createLobby", {
       bet: ethValue,
-      telegramUserId: TgWebApp.initDataUnsafe.user!.id,
+      telegramUserId: WebApp.initDataUnsafe.user!.id,
     });
   };
 
