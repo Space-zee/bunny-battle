@@ -32,7 +32,7 @@ const TurnInfo = () => {
   return (
     <div className="w-full flex justify-between items-center px-3">
       <span className="text-gn-500 text-base">{infoText}</span>
-      <div className="w-[72px] flex justify-center items-center text-teal-300 font-semibold text-xl bg-gn-900 rounded-[45px] py-2">
+      <div className="w-[72px] flex justify-center items-center text-fuchisia-300 font-semibold text-xl bg-gn-900 rounded-[45px] py-2">
         0:44
       </div>
     </div>

@@ -93,7 +93,7 @@ const WalletBalance = () => {
           className={cn(
             "w-full flex items-center justify-between rounded-[24px] border-spacing-1 px-3 py-2 bg-gn-950",
             {
-              "border-4 border-teal-400": isWalletEmpty,
+              "border-4 border-fuchisia-400": isWalletEmpty,
               "border-2 border-gn-800": !isWalletEmpty,
             }
           )}

@@ -61,10 +61,10 @@ const BoardCell = ({ index, onClick }: BoardCellProps) => {
         "w-full h-full relative rounded-lg flex justify-center items-center text-2xl",
         {
           "bg-gn-950": cellState === "default" || cellState === "miss",
-          "bg-gn-900 border-teal-400 border-2": cellState === "setRabbit",
+          "bg-gn-900 border-fuchisia-400 border-2": cellState === "setRabbit",
           "bg-gn-950 border-error-800 border-2": cellState === "killedRabbit",
           "bg-gn-800 border-gn-700 border-2": cellState === "enemyDefault",
-          "bg-gn-800 border-teal-400 border-2": cellState === "move",
+          "bg-gn-800 border-fuchisia-400 border-2": cellState === "move",
         }
       )}
       onClick={onClick}
