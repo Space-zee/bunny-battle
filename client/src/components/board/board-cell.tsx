@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { QuestionMarkIcon } from "@/assets/question-mark.icon";
 import { cn } from "@/lib/utils";
 

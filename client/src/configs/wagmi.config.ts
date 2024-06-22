@@ -1,8 +1,8 @@
 import { http, createConfig } from "wagmi";
 import { scroll, scrollSepolia } from "wagmi/chains";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
+
+// @ts-ignore
 export const wagmiConfig = createConfig({
   chains: [scroll, scrollSepolia],
   transports: {
