@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { IResponse } from "@/interfaces/response.interface";
+import { apiBaseUrl } from "@/constants/api.constant.ts";
 
 export enum EHttpMethod {
   GET = "GET",
@@ -10,7 +11,7 @@ export enum EHttpMethod {
 
 class HttpService {
   private http: AxiosInstance;
-  private baseURL = 'http://localhost:3000';
+  private baseURL = apiBaseUrl;
 
   constructor() {
     this.http = axios.create({ baseURL: this.baseURL });
