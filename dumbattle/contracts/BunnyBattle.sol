@@ -61,7 +61,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
 
     g.player2 = msg.sender;
     g.player2Hash = _boardHash;
-    emit GameJoint(_gameID, msg.sender);
+    emit GameJoined(_gameID, msg.sender);
   }
 
   function submitMove(
@@ -109,7 +109,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     });
     g.movesSize += 1;
     g.nextMoveDeadline = block.timestamp + makeMoveTimestamp;
-    emit MoveSubmited(_gameID, msg.sender, _moveX, _moveY, isPreviousMoveAHit);
+    emit MoveSubmitted(_gameID, msg.sender, _moveX, _moveY, isPreviousMoveAHit);
   }
 
   function claimCommission() external onlyOwner {
