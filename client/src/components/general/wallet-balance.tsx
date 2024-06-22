@@ -7,6 +7,7 @@ import { useBalance } from "wagmi";
 import { formatAddress, formatEthBalance } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useCopyToClipboard } from "usehooks-ts";
 
 const CopyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none">
@@ -21,6 +22,8 @@ const CopyIcon = () => (
 );
 
 const WalletBalance = () => {
+  const [_, copy] = useCopyToClipboard();
+
   const wallet = "0x5d54b69b9848415d8b7abd5cb19031ec472ea1c4";
 
   const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
@@ -49,8 +52,13 @@ const WalletBalance = () => {
     return false;
   }, [formattedAmount, isWalletBalanceLoading]);
 
-  const handleCopyAddress = () => {
-    toast("Address was copied");
+  const handleCopyAddress = async () => {
+    try {
+      await copy(wallet);
+      toast("Address was copied");
+    } catch (err) {
+      console.log("Can not copy wallet to clipboard");
+    }
   };
 
   const handleShowMainButton = () => {};
