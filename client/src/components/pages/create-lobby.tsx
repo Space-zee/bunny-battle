@@ -98,7 +98,7 @@ const CreateLobby = () => {
     $doLoadWebApp();
     if (TgButtons) {
       TgButtons.showMainButton(createLobby, {
-        color: "#2ED3B7",
+        color: "#E478FA",
         text: "Confirm",
         text_color: "#000000",
         is_active: !!ethValue,
@@ -142,7 +142,7 @@ const CreateLobby = () => {
   useEffect(() => {
     TgButtons?.showBackButton(onBack);
     TgButtons?.showMainButton(createLobby, {
-      color: "#2ED3B7",
+      color: "#E478FA",
       text: "Confirm",
       text_color: "#000000",
       is_active: !!ethValue,
