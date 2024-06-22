@@ -1,0 +1,187 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "contract ICreateVerifier",
+        "name": "_createVerifier",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IMoveVerifier",
+        "name": "_moveVerifier",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "_proof",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_boardHash",
+        "type": "uint256"
+      }
+    ],
+    "name": "createGame",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "createVerifier",
+    "outputs": [
+      {
+        "internalType": "contract ICreateVerifier",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_gameID",
+        "type": "uint32"
+      }
+    ],
+    "name": "game",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "player1",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "player2",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "player1Hash",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "player2Hash",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "x",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "y",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "isHit",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct Battleship.Move[]",
+            "name": "moves",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct Battleship.GamePublicMetadata",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_gameID",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_proof",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_boardHash",
+        "type": "uint256"
+      }
+    ],
+    "name": "joinGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "moveVerifier",
+    "outputs": [
+      {
+        "internalType": "contract IMoveVerifier",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_gameID",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_moveX",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_moveY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_proof",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPreviousMoveAHit",
+        "type": "bool"
+      }
+    ],
+    "name": "submitMove",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

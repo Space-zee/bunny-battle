@@ -158,7 +158,7 @@ contract Battleship {
     }
 
     // TODO: Handle winning / ending the game!
-    
+
     g.moves[g.movesSize] = Move({
       x: _moveX,
       y: _moveY,

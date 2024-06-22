@@ -1,7 +1,7 @@
 import { appConfig } from '../configs/app.config';
-import { Contract, ethers } from 'ethers';
-// import abi from '../../../abi/battleship.json';
+import { Contract, ethers, Signer } from 'ethers';
+import abi from '../../abi/bunBattle.json';
 
-export const getBattleshipContract = (provider: ethers.providers.BaseProvider): Contract => {
-  return new ethers.Contract(appConfig.battleshipAddress, [], provider);
+export const getBattleshipContract = (signer: Signer): Contract => {
+  return new ethers.Contract(appConfig.battleshipAddress, abi, signer);
 };

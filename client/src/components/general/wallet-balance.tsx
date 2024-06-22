@@ -74,7 +74,7 @@ const WalletBalance = () => {
     if (TgButtons) {
       TgButtons.hideBackButton();
       TgButtons.showMainButton(handleShowMainButton, {
-        color: "#2ED3B7",
+        color: "#E478FA",
         text: "Create DumBattle",
         text_color: "#000000",
         is_active: true,

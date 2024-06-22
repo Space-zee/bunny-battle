@@ -37,8 +37,8 @@ export class ApiController {
   //   return await this.createRoom();
   // }
 
-  // @Post('createGame')
-  // public async createGame(@Body() payload: ICreateGameReq, @Req() request: Request) {
-  //   return await this.apiService.createGame(payload);
-  // }
+  @Get('createGame')
+  public async createGame() {
+    return await this.apiService.createGame();
+  }
 }
