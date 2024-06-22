@@ -1,13 +1,12 @@
 import { apiPaths } from "@/core/httpClient/apiPaths";
-import HttpService from "@/core/httpClient/httpClient.class";
+import { httpClient } from "@/core/httpClient";
 import { useQuery } from "@tanstack/react-query";
 
 export const useGetUserWallet = (telegramUserId: string) => {
-  const httpService = new HttpService();
-
   return useQuery({
     queryKey: ["userWallet", telegramUserId],
     queryFn: () =>
-      httpService.get<string>(apiPaths.getUserWallet(), { telegramUserId }),
+      httpClient.get<string>(apiPaths.getUserWallet(), { telegramUserId }),
+    enabled: !!telegramUserId,
   });
 };

@@ -89,7 +89,7 @@ const WalletBalance = () => {
     }
 
     setGlobalState({ ...globalState, wallet: walletAddress.data });
-  }, [globalState, setGlobalState, walletAddress.data]);
+  }, [globalState, setGlobalState, walletAddress?.data]);
 
   useEffect(() => {
     $doLoadWebApp();
