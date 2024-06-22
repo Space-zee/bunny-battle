@@ -22,8 +22,6 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   /// @dev info about games
   mapping(uint256 => Game) private games;
 
-
-   
   /// @dev Initialize constructor parameters
   /// @param _createVerifier verifier contract for create game and join game proof
   /// @param _moveVerifier verifier contract for making a move proof
