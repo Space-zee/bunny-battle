@@ -160,7 +160,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   /// @dev Claim reward in the case of the technical lose
   /// If the first player didn't make a first move the second player win
   /// If any of the player miss the move the player with the last turn win
-  /// Can't be called if the game was finished naturalll
+  /// Can't be called if the game was finished natural
   function claimReward(uint256 _gameID) external {
     Game storage g = games[_gameID];
     if(g.nextMoveDeadline > block.timestamp || g.winner != address(0)) revert FailedToClaimReward();
