@@ -4,17 +4,29 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IBunnyBattle } from "./interfaces/IBunnyBattle.sol";
 import { ICreateVerifier, IMoveVerifier } from "./interfaces/IProofVerification.sol";
 
+/// @dev BunnyBattle contract that uses zk proof for fair game 
 contract BunnyBattle is Ownable, IBunnyBattle {
+  /// @dev fee percentage amount that substract from each game pool prize
   uint256 constant feePercentage = 1 ether; // 1 %
+  /// @dev time that allowed for user to make a move
   uint256 constant makeMoveTimestamp = 60 seconds;
 
+  /// @dev proof verifier contarcts
   ICreateVerifier public immutable createVerifier;
   IMoveVerifier public immutable moveVerifier;
 
+  /// @dev id of the next game
   uint256 public nextGameID;
+  /// @dev accumulated fee from the passed games
   uint256 public accumulatedFee;
+  /// @dev info about games
   mapping(uint256 => Game) private games;
 
+
+   
+  /// @dev Initialize constructor parameters
+  /// @param _createVerifier verifier contract for create game and join game proof
+  /// @param _moveVerifier verifier contract for making a move proof
   constructor (
     ICreateVerifier _createVerifier,
     IMoveVerifier _moveVerifier
@@ -23,6 +35,12 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     moveVerifier = _moveVerifier;
   }
 
+  /// @dev Create new game with the first player as msg.sender
+  /// @param _proof proof that verify board creation
+  /// @param _boardHash hash of the initial board satte, we user it to make sure user do not change the intial board view
+  /// @param _betAmount amount of the bet for the current game. Both user should pay this amount to join the game. 
+  /// The user who create game set bet amount. 
+  /// Emits as {GameCreated} event
   function createGame(
     bytes calldata _proof,
     uint256 _boardHash,
@@ -44,6 +62,12 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     return _currentID;
   }
 
+  /// @dev Join game with id `_gameID`
+  /// @param _gameID id of the game to join
+  /// @param _proof proof that verify board creation
+  /// @param _boardHash hash of the initial board state, we user it to make sure user do not change the intial board view
+  /// The user need to deposit betAmount to join the game
+  /// Emits as {GameJoined} event
   function joinGame(
     uint32 _gameID,
     bytes calldata _proof,
@@ -65,6 +89,15 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     emit GameJoined(_gameID, msg.sender);
   }
 
+  /// @dev Submit move function
+  /// @param _gameID id of the game to join
+  /// @param _moveX x coordinate of the current move
+  /// @param _moveY y coordinate of the current move
+  /// @param _proof proof that verify prev move
+  /// @param isPreviousMoveAHit point if the prev move was a hit
+  /// We check if the user gor 2 hits to detect the winner
+  /// User has only 1 minute to make a move otherwise technical lose will apear
+  /// Emits as {MoveSubmitted} event and {GameFinished} event
   function submitMove(
     uint32 _gameID,
     uint _moveX,
@@ -113,6 +146,9 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     emit MoveSubmitted(_gameID, msg.sender, _moveX, _moveY, isPreviousMoveAHit);
   }
 
+  /// @dev Claim commision accumulated on the contract
+  /// Only owner can call the function
+  /// Emits as {CommissionClaimed} event
   function claimCommission() external onlyOwner {
     uint256 fee = accumulatedFee;
     if(fee == 0) revert NothingToClaim();
@@ -120,6 +156,10 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     emit CommissionClaimed(fee);
   }
 
+  /// @dev Claim reward in the case of the technical lose
+  /// If the first player didn't make a first move the second player win
+  /// If any of the player miss the move the player with the last turn win
+  /// Can't be called if the game was finished natullary
   function claimReward(uint256 _gameID) external {
     Game storage g = games[_gameID];
     if(g.nextMoveDeadline > block.timestamp || g.winner != address(0)) revert FailedToClaimReward();
@@ -127,6 +167,8 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     g.winner = msg.sender;
   }
 
+  /// @dev Return metadata of the game
+  /// @param _gameID id of the game required
   function game(uint32 _gameID) external view returns (GamePublicMetadata memory) {
     if(_gameID >= nextGameID) revert InvalidGameID();
     Game storage g = games[_gameID];
