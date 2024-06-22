@@ -33,7 +33,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      scrollSepolia: process.env.SCROLL_SCAN !== undefined,
+      scrollSepolia: process.env.SCROLL_SCAN,
     },
     customChains: [
       {

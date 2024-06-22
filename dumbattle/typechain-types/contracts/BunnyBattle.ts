@@ -68,12 +68,15 @@ export interface BunnyBattleInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "accumulatedFee"
+      | "boardVerifier"
       | "claimCommission"
       | "claimReward"
       | "createGame"
-      | "createVerifier"
+      | "feePercentage"
       | "game"
       | "joinGame"
+      | "makeMoveTimestamp"
+      | "minBetAmount"
       | "moveVerifier"
       | "nextGameID"
       | "owner"
@@ -99,6 +102,10 @@ export interface BunnyBattleInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "boardVerifier",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "claimCommission",
     values?: undefined
   ): string;
@@ -111,13 +118,21 @@ export interface BunnyBattleInterface extends Interface {
     values: [BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "createVerifier",
+    functionFragment: "feePercentage",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "game", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "joinGame",
     values: [BigNumberish, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "makeMoveTimestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "minBetAmount",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "moveVerifier",
@@ -146,6 +161,10 @@ export interface BunnyBattleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "boardVerifier",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "claimCommission",
     data: BytesLike
   ): Result;
@@ -155,11 +174,19 @@ export interface BunnyBattleInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "createGame", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "createVerifier",
+    functionFragment: "feePercentage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "game", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joinGame", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "makeMoveTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "minBetAmount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "moveVerifier",
     data: BytesLike
@@ -363,6 +390,8 @@ export interface BunnyBattle extends BaseContract {
 
   accumulatedFee: TypedContractMethod<[], [bigint], "view">;
 
+  boardVerifier: TypedContractMethod<[], [string], "view">;
+
   claimCommission: TypedContractMethod<[], [void], "nonpayable">;
 
   claimReward: TypedContractMethod<
@@ -377,7 +406,7 @@ export interface BunnyBattle extends BaseContract {
     "payable"
   >;
 
-  createVerifier: TypedContractMethod<[], [string], "view">;
+  feePercentage: TypedContractMethod<[], [bigint], "view">;
 
   game: TypedContractMethod<
     [_gameID: BigNumberish],
@@ -390,6 +419,10 @@ export interface BunnyBattle extends BaseContract {
     [void],
     "payable"
   >;
+
+  makeMoveTimestamp: TypedContractMethod<[], [bigint], "view">;
+
+  minBetAmount: TypedContractMethod<[], [bigint], "view">;
 
   moveVerifier: TypedContractMethod<[], [string], "view">;
 
@@ -425,6 +458,9 @@ export interface BunnyBattle extends BaseContract {
     nameOrSignature: "accumulatedFee"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "boardVerifier"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "claimCommission"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
@@ -438,8 +474,8 @@ export interface BunnyBattle extends BaseContract {
     "payable"
   >;
   getFunction(
-    nameOrSignature: "createVerifier"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "feePercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "game"
   ): TypedContractMethod<
@@ -454,6 +490,12 @@ export interface BunnyBattle extends BaseContract {
     [void],
     "payable"
   >;
+  getFunction(
+    nameOrSignature: "makeMoveTimestamp"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "minBetAmount"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "moveVerifier"
   ): TypedContractMethod<[], [string], "view">;

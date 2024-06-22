@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.24;
 
-interface ICreateVerifier {
+interface IBoardVerifier {
   function verifyProof(
     uint[2] memory a,
     uint[2][2] memory b,

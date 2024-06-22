@@ -18,6 +18,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
+      name: "Groth16Verifier",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Groth16Verifier__factory>;
+    getContractFactory(
       name: "BunnyBattle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BunnyBattle__factory>;
@@ -29,6 +33,10 @@ declare module "hardhat/types/runtime" {
       name: "IBunnyBattle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IBunnyBattle__factory>;
+    getContractFactory(
+      name: "IBoardVerifier",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBoardVerifier__factory>;
     getContractFactory(
       name: "ICreateVerifier",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -48,6 +56,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Ownable>;
     getContractAt(
+      name: "Groth16Verifier",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Groth16Verifier>;
+    getContractAt(
       name: "BunnyBattle",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -62,6 +75,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IBunnyBattle>;
+    getContractAt(
+      name: "IBoardVerifier",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IBoardVerifier>;
     getContractAt(
       name: "ICreateVerifier",
       address: string | ethers.Addressable,
@@ -83,6 +101,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Ownable>;
     deployContract(
+      name: "Groth16Verifier",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Groth16Verifier>;
+    deployContract(
       name: "BunnyBattle",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.BunnyBattle>;
@@ -94,6 +116,10 @@ declare module "hardhat/types/runtime" {
       name: "IBunnyBattle",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IBunnyBattle>;
+    deployContract(
+      name: "IBoardVerifier",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IBoardVerifier>;
     deployContract(
       name: "ICreateVerifier",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -113,6 +139,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Ownable>;
     deployContract(
+      name: "Groth16Verifier",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Groth16Verifier>;
+    deployContract(
       name: "BunnyBattle",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -127,6 +158,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IBunnyBattle>;
+    deployContract(
+      name: "IBoardVerifier",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IBoardVerifier>;
     deployContract(
       name: "ICreateVerifier",
       args: any[],
