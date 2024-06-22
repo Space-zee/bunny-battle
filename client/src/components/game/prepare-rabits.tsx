@@ -1,8 +1,7 @@
 import { useAtom } from "jotai";
 import { Board } from "../board/board";
-import { Coordinates } from "./models/game-state.types";
-import { $doGameState } from "./models/game-state";
-
+import { $doGameState } from "@/core/models/game";
+import { Coordinates } from "@/core/models/game.types";
 const PrepareRabits = () => {
   const [gameState, setGameState] = useAtom($doGameState);
 

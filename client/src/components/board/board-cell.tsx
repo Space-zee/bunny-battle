@@ -1,10 +1,11 @@
 // @ts-nocheck
+
 import { QuestionMarkIcon } from "@/assets/question-mark.icon";
 import { cn } from "@/lib/utils";
 import { useAtomValue } from "jotai";
-import { $doGameState } from "../game/models/game-state";
 import { useMemo } from "react";
 import { compareCoordinates, gridIndexToCoordinates } from "@/utils/math";
+import { $doGameState } from "@/core/models/game";
 
 type BoardCellState =
   | "default"

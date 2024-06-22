@@ -20,6 +20,7 @@ export interface GameState {
   isUserTurn: boolean;
   prizePool: number;
   winner: string | null;
+  enemyUsername: string | null;
   isUserRoom: boolean; // One who create is true
   userRabbitsPositions: Coordinates[] | null;
   action: Coordinates | null;

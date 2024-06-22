@@ -1,8 +1,8 @@
+import { $doGameState } from "@/core/models/game";
 import { RoomParticipant } from "../create-room/participant";
 import { RoomPrize } from "../create-room/room-prize";
 
 import { useAtomValue } from "jotai";
-import { $doGameState } from "../game/models/game-state";
 
 const GameHeader = () => {
   const gameState = useAtomValue($doGameState);

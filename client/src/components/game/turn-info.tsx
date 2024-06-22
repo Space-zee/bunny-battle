@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useAtom } from "jotai";
-import { $doGameState } from "./models/game-state";
+import { $doGameState } from "@/core/models/game";
 
 const TurnInfo = () => {
   const [gameState] = useAtom($doGameState);
@@ -31,7 +31,7 @@ const TurnInfo = () => {
 
   return (
     <div className="w-full flex justify-between items-center px-3">
-      <span className="text-gn-500 text-xl">{infoText}</span>
+      <span className="text-gn-500 text-base">{infoText}</span>
       <div className="w-[72px] flex justify-center items-center text-teal-300 font-semibold text-xl bg-gn-900 rounded-[45px] py-2">
         0:44
       </div>
