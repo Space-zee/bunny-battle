@@ -109,8 +109,15 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
   @SubscribeMessage(/clientUserMove/)
   public handleUserMove(
     client: Socket,
-    body: { coordinates: { x: 1; y: 2 }; telegramUserId: number; roomId: string },
+    body: {
+      coordinates: { x: 1; y: 2 };
+      rabbits: [{ x: 1; y: 2 }, { x: 2; y: 1 }];
+      telegramUserId: number;
+      roomId: string;
+    },
   ) {
+    //contract call to get last move
+    //
     //contract call
     //await tx
     this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`);
