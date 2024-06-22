@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { GameState } from "./game.types";
 
 export const initialGameState: GameState = {
+  gameId: 65,
   prizePool: 0,
   winner: null,
   isUserTurn: true,

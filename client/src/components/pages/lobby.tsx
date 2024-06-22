@@ -60,7 +60,7 @@ const Lobby = () => {
       <Container>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-6 pt-9">
-            <PageTitle>Lobby</PageTitle>
+            <PageTitle>Combat lobby</PageTitle>
             <Tabs />
           </div>
           <Outlet />

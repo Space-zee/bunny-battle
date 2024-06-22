@@ -63,7 +63,7 @@ const BoardCell = ({ index, onClick }: BoardCellProps) => {
     }
 
     // Enemy turn
-    if (gameState.isUserTurn) {
+    if (gameState.isUserTurn && gameState.stage !== "setRabits") {
       if (
         gameState.userMove &&
         compareCoordinates(gameState.userMove, cellCoordinates)
