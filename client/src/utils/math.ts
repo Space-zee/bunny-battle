@@ -1,4 +1,4 @@
-import { Coordinates } from "@/components/game/models/game-state.types";
+import { Coordinates } from "@/core/models/game.types";
 
 const GRID_WIDTH = 3;
 
@@ -7,6 +7,10 @@ export const gridIndexToCoordinates = (index: number) => {
   const x = index % width;
   const y = Math.floor(index / width);
   return { x, y };
+};
+
+export const coordinatesToIndex = (coordinates: Coordinates) => {
+  return coordinates.y * GRID_WIDTH + coordinates.x;
 };
 
 export const compareCoordinates = (

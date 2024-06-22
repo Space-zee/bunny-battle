@@ -157,7 +157,7 @@ const CreateLobby = () => {
       <Container className="flex flex-col gap-7">
         <PageTitle>
           <span>Create</span>
-          <span className="text-fuchisia-400">DumBattle</span>
+          <span className="text-teal-400">DumBattle</span>
         </PageTitle>
 
         <Form {...form}>
