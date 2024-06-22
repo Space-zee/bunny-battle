@@ -117,10 +117,14 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     },
   ) {
     //contract call to get last move
-    //
-    //contract call
+    //check is last move compare to rabbits of current user (true/false)
+    //contract call to move
     //await tx
-    this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`);
+    //contract call getGame. If winner, call
+    this.server.emit(`winner:${body.roomId}`, { username: true });
+
+    //if first move null
+    this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`, { lastMove: true });
   }
 
   async txConfirmed() {}
