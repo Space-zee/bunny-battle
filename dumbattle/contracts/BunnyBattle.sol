@@ -139,6 +139,8 @@ contract BunnyBattle is Ownable, IBunnyBattle {
       player1Hash: g.player1Hash,
       player2: g.player2,
       player2Hash: g.player2Hash,
+      nextMoveDeadline: g.nextMoveDeadline,
+      winner: g.winner,
       moves: _moves
     });
   }
