@@ -24,6 +24,7 @@ import TgWebApp from "@twa-dev/sdk";
 import { useNavigate } from "react-router-dom";
 import { useAtom, useSetAtom } from "jotai";
 import * as coreModels from "../../core/models";
+import { apiBaseUrl } from "@/constants/api.constant";
 
 interface LabelProps {
   children: ReactNode;
@@ -85,7 +86,7 @@ const CreateLobby = () => {
   const [WebApp] = useAtom(coreModels.$webApp);
   const [TgButtons] = useAtom(coreModels.$tgButtons);
   const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
-  const socket = io("http://localhost:3000", { autoConnect: false });
+  const socket = io(apiBaseUrl, { autoConnect: false });
   const navigate = useNavigate();
 
   const onBack = () => {
