@@ -32,7 +32,19 @@ const config: HardhatUserConfig = {
     currency: "USD",
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      scrollSepolia: process.env.SCROLL_SCAN !== undefined,
+    },
+    customChains: [
+      {
+        network: 'scrollSepolia',
+        chainId: 534351,
+        urls: {
+          apiURL: 'https://api-sepolia.scrollscan.com/api',
+          browserURL: 'https://sepolia.scrollscan.com/',
+        },
+      },
+    ],
   },
 };
 
