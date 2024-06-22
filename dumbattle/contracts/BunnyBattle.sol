@@ -193,9 +193,9 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     } else if (g.nextMoveDeadline < block.timestamp) {
       // get player who did last move
       if (g.movesSize % 2 == 0) {
-        if(winner != g.player1) revert InvalidWinner();
-      } else {
         if(winner != g.player2) revert InvalidWinner();
+      } else {
+        if(winner != g.player1) revert InvalidWinner();
       }
     }
     
