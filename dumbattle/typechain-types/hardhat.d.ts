@@ -14,9 +14,21 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "Battleship",
+      name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Battleship__factory>;
+    ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
+      name: "BunnyBattle",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BunnyBattle__factory>;
+    getContractFactory(
+      name: "Groth16Verifier",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Groth16Verifier__factory>;
+    getContractFactory(
+      name: "IBunnyBattle",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBunnyBattle__factory>;
     getContractFactory(
       name: "ICreateVerifier",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -29,16 +41,27 @@ declare module "hardhat/types/runtime" {
       name: "Groth16Verifier",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Groth16Verifier__factory>;
-    getContractFactory(
-      name: "Groth16Verifier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Groth16Verifier__factory>;
 
     getContractAt(
-      name: "Battleship",
+      name: "Ownable",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.Battleship>;
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "BunnyBattle",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BunnyBattle>;
+    getContractAt(
+      name: "Groth16Verifier",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Groth16Verifier>;
+    getContractAt(
+      name: "IBunnyBattle",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IBunnyBattle>;
     getContractAt(
       name: "ICreateVerifier",
       address: string | ethers.Addressable,
@@ -54,16 +77,23 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.Groth16Verifier>;
-    getContractAt(
-      name: "Groth16Verifier",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Groth16Verifier>;
 
     deployContract(
-      name: "Battleship",
+      name: "Ownable",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Battleship>;
+    ): Promise<Contracts.Ownable>;
+    deployContract(
+      name: "BunnyBattle",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.BunnyBattle>;
+    deployContract(
+      name: "Groth16Verifier",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Groth16Verifier>;
+    deployContract(
+      name: "IBunnyBattle",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IBunnyBattle>;
     deployContract(
       name: "ICreateVerifier",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -76,16 +106,27 @@ declare module "hardhat/types/runtime" {
       name: "Groth16Verifier",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Groth16Verifier>;
-    deployContract(
-      name: "Groth16Verifier",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Groth16Verifier>;
 
     deployContract(
-      name: "Battleship",
+      name: "Ownable",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Battleship>;
+    ): Promise<Contracts.Ownable>;
+    deployContract(
+      name: "BunnyBattle",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.BunnyBattle>;
+    deployContract(
+      name: "Groth16Verifier",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Groth16Verifier>;
+    deployContract(
+      name: "IBunnyBattle",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IBunnyBattle>;
     deployContract(
       name: "ICreateVerifier",
       args: any[],
@@ -96,11 +137,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IMoveVerifier>;
-    deployContract(
-      name: "Groth16Verifier",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Groth16Verifier>;
     deployContract(
       name: "Groth16Verifier",
       args: any[],

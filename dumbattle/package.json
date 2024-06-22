@@ -7,6 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
+    "@openzeppelin/contracts": "^5.0.2",
     "circomlib": "^2.0.5",
     "dotenv": "^16.4.5",
     "snarkjs": "^0.7.4"
