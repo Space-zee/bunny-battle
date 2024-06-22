@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IResponse } from '../../shared/interfaces/response.interface';
 import { WalletEntity } from '../../../db/entities/wallet.entity';
+import { ethers } from 'ethers';
 
 @Injectable()
 export class UserService {
@@ -12,6 +13,8 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(WalletEntity)
+    private readonly walletRepository: Repository<WalletEntity>,
   ) {}
 
   public async createUser(
@@ -26,10 +29,11 @@ export class UserService {
         relations: { wallets: true },
       });
       if (!userEntity) {
-        userEntity = await this.userRepository.create({
+        userEntity = this.userRepository.create({
           telegramUserId,
           firstName,
           username,
+          nonce: Math.floor(Math.random() * 90000) + 10000,
         });
         await userEntity.save();
       }
@@ -47,5 +51,50 @@ export class UserService {
         success: false,
       };
     }
+  }
+
+  public async createWallet(
+    telegramUserId: number,
+  ): Promise<IResponse<{ address: string; privateKey: string }>> {
+    const userEntity = await this.userRepository.findOne({
+      where: { telegramUserId },
+      relations: { wallets: true },
+    });
+
+    if (!userEntity) {
+      this.logger.error('createWallet | no user entity');
+
+      return {
+        success: false,
+        error: 'Please click /start',
+      };
+    }
+    if (userEntity.wallets.length) {
+      this.logger.error('createWallet | wallet exist');
+
+      return {
+        success: true,
+        data: {
+          address: userEntity.wallets[0].address,
+          privateKey: userEntity.wallets[0].privateKey,
+        },
+      };
+    }
+    const wallet = ethers.Wallet.createRandom();
+
+    const walletEntity = this.walletRepository.create({
+      address: wallet.address,
+      userId: userEntity.id,
+      privateKey: wallet.privateKey,
+    });
+    await walletEntity.save();
+
+    return {
+      success: true,
+      data: {
+        address: wallet.address,
+        privateKey: wallet.privateKey,
+      },
+    };
   }
 }

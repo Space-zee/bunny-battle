@@ -24,6 +24,16 @@ export interface IRabbitsSetReq {
   telegramUserId: number;
   roomId: string;
 }
+export interface IRabbitsSetRes {
+  contractRoomId: number;
+}
+
+export interface IUserMoveReq {
+  coordinates: ICoordinates;
+  userRabbits: ICoordinates[];
+  telegramUserId: number;
+  roomId: string;
+}
 
 export interface ICoordinates {
   x: number;

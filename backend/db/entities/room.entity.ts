@@ -12,8 +12,8 @@ export class RoomEntity extends BaseEntity {
   @Column({ name: 'roomId', length: 255, nullable: false })
   public roomId: string;
 
-  @Column({ name: 'contractRoomId', length: 255, nullable: true })
-  public contractRoomId: string;
+  @Column({ name: 'contractRoomId', nullable: true })
+  public contractRoomId: number;
 
   @Column({ name: 'status', length: 255, nullable: false })
   public status: string;

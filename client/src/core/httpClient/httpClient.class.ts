@@ -23,13 +23,11 @@ class HttpService {
     options?: AxiosRequestConfig,
   ): Promise<IResponse<Res>> {
     try {
-      console.log('baseURL', this.baseURL)
       const response = await this.http.request<Res>({
         method,
         url,
         ...options,
       });
-      console.log('response', response)
       return {
         success: true,
         data: response.data,

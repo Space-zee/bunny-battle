@@ -10,17 +10,14 @@ const LobbyCreated = () => {
   const { pathname } = useLocation();
   const [, , roomId, isReadyLocal] = pathname.split("/");
   const [searchParams] = useSearchParams();
-  console.log('searchParams', Boolean(searchParams.get('isReady')))
   const [isReady, setIsReady] = useState(Boolean(searchParams.get('isReady')));
   const socket = io("http://localhost:3000", { autoConnect: false });
-console.log('pathname', pathname)
   useEffect(() => {// connect to socket
     socket.connect();
     socket.on("disconnect", () => { // fire when socked is disconnected
       console.log("Socket disconnected");
     });
     socket.on(`readyForBattle:${roomId}`, (body: any) => { // fire when socked is disconnected
-      console.log("readyForBattle", body);
       setIsReady(true)
     });
 

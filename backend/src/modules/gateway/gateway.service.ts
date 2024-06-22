@@ -20,16 +20,22 @@ import {
   IJoinRoomReq,
   IJoinRoomRes,
   IRabbitsSetReq,
+  IUserMoveReq,
 } from './interfaces';
 import { getBattleshipContract } from '../../shared/utils/getBattleshipContract';
 import fs from 'fs';
+import * as path from 'path';
 
 const createWC = require('../../../assets/circom/create/create_js/witness_calculator.js');
-const createWasm = '../../../assets/circom/create/create_js/create.wasm';
-const createZkey = '../../../assets/circom/create/create_0001.zkey';
+const createWasm = path.resolve(__dirname, '../../assets/circom/create/create_js/create.wasm');
+const createZkey = path.resolve(__dirname, '../../../assets/circom/create/create_0001.zkey');
+const moveWC = require('../../../assets/circom/move/move_js/witness_calculator.js');
+const moveWasm = path.resolve(__dirname, '../../../assets/circom/move/move_js/move.wasm');
+const moveZkey = path.resolve(__dirname, '../../../assets/circom/move/move_0001.zkey');
 const snarkjs = require('snarkjs');
 const bigInt = require('big-integer');
 const WITNESS_FILE = '/tmp/witness';
+const emptyProof = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' } })
@@ -101,27 +107,48 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     //isGameStart user not creator
     const roomEntity = await this.roomRepository.findOne({
       where: { roomId: body.roomId },
-      relations: { user: true },
+    });
+    const userEntity = await this.userRepository.findOne({
+      where: { telegramUserId: body.telegramUserId },
+      relations: { wallets: true },
     });
     const isRoomCreator = roomEntity.user.telegramUserId === body.telegramUserId;
+    const rabbit1 = body.rabbits[0];
+    const rabbit2 = body.rabbits[1];
+    const playerCreate = {
+      nonce: userEntity.nonce,
+      ships: [
+        [rabbit1.x, rabbit1.y],
+        [rabbit2.x, rabbit2.y],
+      ],
+    };
+    const proof = await this.genCreateProof(playerCreate);
+    const signer = new ethers.Wallet(userEntity.wallets[0].privateKey, this.provider);
+    const contract = getBattleshipContract(signer);
+
     if (isRoomCreator) {
-      const playerCreate = {
-        nonce: 12345,
-        ships: [
-          [2, 2, 0],
-          [4, 0, 1],
-          [1, 0, 0],
-          [5, 5, 1],
-          [6, 3, 0],
-        ],
-      };
-      const proof1 = await this.genCreateProof(playerCreate);
-      console.log('proof1', proof1);
-      const contract = getBattleshipContract(this.provider);
-      //const createGame = await contract.createGame();
+      const createGame = await contract.createGame(proof.solidityProof, proof.inputs[0]);
+      await createGame.wait();
+      let contractRoomId = 0;
+      if (createGame.events) {
+        createGame.events.forEach((event) => {
+          console.log('Event:', event.event, event.args);
+          contractRoomId = event.args[0];
+        });
+      }
+      await this.roomRepository.update(roomEntity.id, { contractRoomId });
     } else {
+      const createGame = await contract.joinGame(
+        roomEntity.contractRoomId,
+        proof.solidityProof,
+        proof.inputs[0],
+      );
+      await createGame.wait();
     }
-    this.server.emit(`serverRabbitSet:${body.roomId}:${body.telegramUserId}`);
+    const res = {
+      contractRoomId: roomEntity.contractRoomId,
+    };
+    this.server.emit(`serverRabbitSet:${body.roomId}:${body.telegramUserId}`, res);
 
     if (isRoomCreator) {
       this.server.emit(`gameStarted:${body.roomId}:${body.telegramUserId}`);
@@ -129,24 +156,68 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
   }
 
   @SubscribeMessage('clientUserMove')
-  public handleUserMove(
-    client: Socket,
-    body: {
-      coordinates: { x: 1; y: 2 };
-      rabbits: [{ x: 1; y: 2 }, { x: 2; y: 1 }];
-      telegramUserId: number;
-      roomId: string;
-    },
-  ) {
+  public async handleUserMove(client: Socket, body: IUserMoveReq) {
     //contract call to get last move
     //check is last move compare to rabbits of current user (true/false)
     //contract call to move
     //await tx
     //contract call getGame. If winner, call
-    this.server.emit(`winner:${body.roomId}`, { username: true });
+    const userEntity = await this.userRepository.findOne({
+      where: { telegramUserId: body.telegramUserId },
+      relations: { wallets: true },
+    });
+    const roomEntity = await this.roomRepository.findOne({
+      where: { roomId: body.roomId },
+      relations: { user: true },
+    });
+    const signer = new ethers.Wallet(userEntity.wallets[0].privateKey, this.provider);
+    const contract = getBattleshipContract(signer);
+    const game = await contract.game(roomEntity.contractRoomId);
 
-    //if first move null
-    this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`, { lastMove: true });
+    if (game.winner !== ethers.constants.AddressZero) {
+      this.server.emit(`winner:${body.roomId}`, { address: game.winner });
+
+      return;
+    }
+
+    if (!game.moves.length) {
+      const move = await contract.submitMove(
+        roomEntity.contractRoomId,
+        body.coordinates.x,
+        body.coordinates.y,
+        emptyProof,
+        false,
+      );
+      await move.wait();
+
+      this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`, { lastMove: null });
+    } else {
+      const rabbit1 = body.userRabbits[0];
+      const rabbit2 = body.userRabbits[1];
+      const proof = await this.genMoveProof({
+        // Public Inputs
+        boardHash: game.player2Hash.toString(),
+        guess: [game.moves[game.moves.length - 1].x, game.moves[game.moves.length - 1].y],
+        // Private Inputs:
+        nonce: userEntity.nonce,
+        ships: [
+          [rabbit1.x, rabbit1.y],
+          [rabbit2.x, rabbit2.y],
+        ],
+      });
+
+      const move = await contract.submitMove(
+        roomEntity.contractRoomId,
+        body.coordinates.x,
+        body.coordinates.y,
+        proof,
+        game.moves[game.moves.length - 1].isHit,
+      );
+      await move.wait();
+      this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`, {
+        lastMove: game.moves[game.moves.length - 1].isHit,
+      });
+    }
   }
 
   public handleConnection(socket: Socket): void {
@@ -197,5 +268,19 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     }
 
     return str;
+  }
+
+  private async genMoveProof(input: any) {
+    const buffer = fs.readFileSync(moveWasm);
+    const witnessCalculator = await moveWC(buffer);
+    const buff = await witnessCalculator.calculateWTNSBin(input);
+    fs.writeFileSync(WITNESS_FILE, buff);
+    const { proof, publicSignals } = await snarkjs.groth16.prove(moveZkey, WITNESS_FILE);
+    const solidityProof = this.proofToSolidityInput(proof);
+
+    return {
+      solidityProof: solidityProof,
+      inputs: publicSignals,
+    };
   }
 }

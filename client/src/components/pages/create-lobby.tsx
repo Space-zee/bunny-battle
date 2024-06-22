@@ -105,7 +105,6 @@ const CreateLobby = () => {
       console.log("Socket disconnected");
     });
     socket.on(`roomCreated:${TgWebApp.initDataUnsafe.user!.id}`, (body: any) => { // fire when socked is disconnected
-      console.log("roomCreated", body);
       navigate(`/lobby/${body.roomId}`);
     });
 

@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GatewayModule } from './modules/gateway/gateway.module';
 import { ApiModule } from './modules/api/api.module';
-import { BlockchainListenerModule } from './modules/blockchainListener/blockchainListener.module';
 
 @Module({
   imports: [
@@ -38,7 +37,6 @@ import { BlockchainListenerModule } from './modules/blockchainListener/blockchai
     TelegramModule,
     GatewayModule,
     ApiModule,
-    //BlockchainListenerModule,
   ],
 })
 export class AppModule {}

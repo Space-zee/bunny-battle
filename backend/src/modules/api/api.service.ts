@@ -31,7 +31,6 @@ export class ApiService {
       relations: { user: true },
       where: { status: RoomStatus.Active },
     });
-    console.log('roomEntity', roomEntity);
 
     return roomEntity.map((el) => {
       return {
@@ -46,7 +45,6 @@ export class ApiService {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://rpc.ankr.com/scroll_sepolia_testnet',
     );
-    const contract = getBattleshipContract(provider);
     const player1Create = {
       nonce: 12345,
       ships: [
