@@ -208,7 +208,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "GameJoint",
+    name: "GameJoined",
     type: "event",
   },
   {
@@ -245,13 +245,13 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "MoveSubmited",
+    name: "MoveSubmitted",
     type: "event",
   },
 ] as const;
 
 const _bytecode =
-  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212208e04d70e1a70bead8c247c88f9fda7626ad04220d7f8c28765d1e23edb7eca4f64736f6c63430008180033";
+  "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122066a7c436a8370ace40f6cc8dd068e3e25e7f260455c38401dab351384a563d0864736f6c63430008180033";
 
 type IBunnyBattleConstructorParams =
   | [signer?: Signer]

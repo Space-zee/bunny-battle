@@ -35,22 +35,28 @@ export declare namespace IBunnyBattle {
   export type GamePublicMetadataStruct = {
     player1: AddressLike;
     player2: AddressLike;
+    winner: AddressLike;
     player1Hash: BigNumberish;
     player2Hash: BigNumberish;
+    totalBetAmount: BigNumberish;
     moves: IBunnyBattle.MoveStruct[];
   };
 
   export type GamePublicMetadataStructOutput = [
     player1: string,
     player2: string,
+    winner: string,
     player1Hash: bigint,
     player2Hash: bigint,
+    totalBetAmount: bigint,
     moves: IBunnyBattle.MoveStructOutput[]
   ] & {
     player1: string;
     player2: string;
+    winner: string;
     player1Hash: bigint;
     player2Hash: bigint;
+    totalBetAmount: bigint;
     moves: IBunnyBattle.MoveStructOutput[];
   };
 }
@@ -80,8 +86,8 @@ export interface BunnyBattleInterface extends Interface {
       | "EtherDeposited"
       | "GameCreated"
       | "GameFinished"
-      | "GameJoint"
-      | "MoveSubmited"
+      | "GameJoined"
+      | "MoveSubmitted"
       | "OwnershipTransferred"
   ): EventFragment;
 
@@ -255,7 +261,7 @@ export namespace GameFinishedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace GameJointEvent {
+export namespace GameJoinedEvent {
   export type InputTuple = [gameId: BigNumberish, participant: AddressLike];
   export type OutputTuple = [gameId: bigint, participant: string];
   export interface OutputObject {
@@ -268,7 +274,7 @@ export namespace GameJointEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace MoveSubmitedEvent {
+export namespace MoveSubmittedEvent {
   export type InputTuple = [
     gameId: BigNumberish,
     participant: AddressLike,
@@ -510,18 +516,18 @@ export interface BunnyBattle extends BaseContract {
     GameFinishedEvent.OutputObject
   >;
   getEvent(
-    key: "GameJoint"
+    key: "GameJoined"
   ): TypedContractEvent<
-    GameJointEvent.InputTuple,
-    GameJointEvent.OutputTuple,
-    GameJointEvent.OutputObject
+    GameJoinedEvent.InputTuple,
+    GameJoinedEvent.OutputTuple,
+    GameJoinedEvent.OutputObject
   >;
   getEvent(
-    key: "MoveSubmited"
+    key: "MoveSubmitted"
   ): TypedContractEvent<
-    MoveSubmitedEvent.InputTuple,
-    MoveSubmitedEvent.OutputTuple,
-    MoveSubmitedEvent.OutputObject
+    MoveSubmittedEvent.InputTuple,
+    MoveSubmittedEvent.OutputTuple,
+    MoveSubmittedEvent.OutputObject
   >;
   getEvent(
     key: "OwnershipTransferred"
@@ -587,26 +593,26 @@ export interface BunnyBattle extends BaseContract {
       GameFinishedEvent.OutputObject
     >;
 
-    "GameJoint(uint256,address)": TypedContractEvent<
-      GameJointEvent.InputTuple,
-      GameJointEvent.OutputTuple,
-      GameJointEvent.OutputObject
+    "GameJoined(uint256,address)": TypedContractEvent<
+      GameJoinedEvent.InputTuple,
+      GameJoinedEvent.OutputTuple,
+      GameJoinedEvent.OutputObject
     >;
-    GameJoint: TypedContractEvent<
-      GameJointEvent.InputTuple,
-      GameJointEvent.OutputTuple,
-      GameJointEvent.OutputObject
+    GameJoined: TypedContractEvent<
+      GameJoinedEvent.InputTuple,
+      GameJoinedEvent.OutputTuple,
+      GameJoinedEvent.OutputObject
     >;
 
-    "MoveSubmited(uint256,address,uint256,uint256,bool)": TypedContractEvent<
-      MoveSubmitedEvent.InputTuple,
-      MoveSubmitedEvent.OutputTuple,
-      MoveSubmitedEvent.OutputObject
+    "MoveSubmitted(uint256,address,uint256,uint256,bool)": TypedContractEvent<
+      MoveSubmittedEvent.InputTuple,
+      MoveSubmittedEvent.OutputTuple,
+      MoveSubmittedEvent.OutputObject
     >;
-    MoveSubmited: TypedContractEvent<
-      MoveSubmitedEvent.InputTuple,
-      MoveSubmitedEvent.OutputTuple,
-      MoveSubmitedEvent.OutputObject
+    MoveSubmitted: TypedContractEvent<
+      MoveSubmittedEvent.InputTuple,
+      MoveSubmittedEvent.OutputTuple,
+      MoveSubmittedEvent.OutputObject
     >;
 
     "OwnershipTransferred(address,address)": TypedContractEvent<
