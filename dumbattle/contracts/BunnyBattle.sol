@@ -5,7 +5,7 @@ import { IBunnyBattle } from "./interfaces/IBunnyBattle.sol";
 import { ICreateVerifier, IMoveVerifier } from "./interfaces/IProofVerification.sol";
 
 contract BunnyBattle is Ownable, IBunnyBattle {
-  uint256 constant feePercentage = 0.001 ether; // 0.001 %
+  uint256 constant feePercentage = 1 ether; // 1 %
   uint256 constant makeMoveTimestamp = 60 seconds;
 
   ICreateVerifier public immutable createVerifier;
