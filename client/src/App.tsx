@@ -15,6 +15,7 @@ import { LobbyEnded } from "./components/pages/lobby-ended";
 import { Toaster } from "./components/ui/sonner";
 import { CreateLobby } from "./components/pages/create-lobby";
 import { Game } from "./components/pages/game";
+import { GameResult } from "./components/pages/game-result";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/game/:id",
     element: <Game />,
+  },
+  {
+    path: "/game-result/:id",
+    element: <GameResult />,
   },
 ]);
 
