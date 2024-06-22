@@ -8,10 +8,11 @@ import { ICreateGameReq, IGetActiveRoomsRes } from './interfaces';
 import * as fs from 'fs';
 import { RoomEntity } from '../../../db/entities/room.entity';
 import { RoomStatus } from './enums';
+import * as path from 'path';
 
 const createWC = require('../../../assets/circom/create/create_js/witness_calculator.js');
-const createWasm = '../../../assets/circom/create/create_js/create.wasm';
-const createZkey = '../../../assets/circom/create/create_0001.zkey';
+const createWasm = path.resolve(__dirname, '../../../assets/circom/create/create_js/create.wasm');
+const createZkey = path.resolve(__dirname, '../../../assets/circom/create/create_0001.zkey');
 const snarkjs = require('snarkjs');
 const bigInt = require('big-integer');
 const WITNESS_FILE = '/tmp/witness';
@@ -41,7 +42,7 @@ export class ApiService {
     });
   }
 
-  public async createGame(data: ICreateGameReq) {
+  public async createGame() {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://rpc.ankr.com/scroll_sepolia_testnet',
     );
@@ -49,15 +50,13 @@ export class ApiService {
     const player1Create = {
       nonce: 12345,
       ships: [
-        [2, 2, 0],
-        [4, 0, 1],
-        [1, 0, 0],
-        [5, 5, 1],
-        [6, 3, 0],
+        [2, 2],
+        [0, 0],
       ],
     };
     const proof1 = await this.genCreateProof(player1Create);
-    console.log('proof1', proof1);
+
+    return proof1;
   }
 
   private async genCreateProof(input: any) {
