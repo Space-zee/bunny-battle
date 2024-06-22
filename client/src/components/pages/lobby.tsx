@@ -47,6 +47,7 @@ const Tabs = () => {
 const Lobby = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  console.log('pathname', pathname)
 
   useEffect(() => {
     if (pathname === "/lobby") {

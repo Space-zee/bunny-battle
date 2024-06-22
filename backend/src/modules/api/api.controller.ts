@@ -1,7 +1,44 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Logger, Query, Req } from '@nestjs/common';
 import { ApiService } from './api.service';
+import { RoomEntity } from '../../../db/entities/room.entity';
+import { IGetActiveRoomsRes } from './interfaces';
 
 @Controller()
 export class ApiController {
+  private readonly logger = new Logger(ApiService.name);
   constructor(private readonly apiService: ApiService) {}
+
+  @Get('getActiveRooms')
+  public async getActiveRooms(
+    @Query() query: any,
+    @Req() request: Request,
+  ): Promise<IGetActiveRoomsRes[]> {
+    try {
+      this.logger.log('getActiveRooms call');
+
+      return await this.apiService.getBattles();
+    } catch (e) {
+      this.logger.error(`api getActiveRooms error | ${e}`);
+      const status = e?.response?.status ? e.response.status : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException(
+        {
+          status: status,
+          error: e?.response?.error
+            ? e.response.error
+            : 'There was a problem processing your request',
+        },
+        status,
+      );
+    }
+  }
+  //
+  // @Post('createRoom')
+  // public async createRoom(@Body() payload: ICreateRoomReq, @Req() request: Request) {
+  //   return await this.createRoom();
+  // }
+
+  // @Post('createGame')
+  // public async createGame(@Body() payload: ICreateGameReq, @Req() request: Request) {
+  //   return await this.apiService.createGame(payload);
+  // }
 }

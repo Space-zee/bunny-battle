@@ -1,6 +1,7 @@
 import { BackButton, MainButton, WebApp } from "@twa-dev/types";
 
-const tealColor400 = "#2ED3B7";
+const textInactive = "#6C737F";
+const bgInactive = '#1F2A37'
 
 export class TgButtons {
   public mainButton: MainButton;
@@ -30,8 +31,8 @@ export class TgButtons {
       this.mainButtonOnClick = null;
     }
     if (!params.is_active) {
-      params.color = tealColor400;
-      params.text_color = tealColor400;
+      params.color = bgInactive;
+      params.text_color = textInactive;
     }
     this.mainButton.show();
     this.mainButtonOnClick = onClick;

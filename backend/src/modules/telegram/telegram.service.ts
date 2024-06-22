@@ -35,7 +35,7 @@ export class TelegramService {
               {
                 text: `Open App`,
                 web_app: {
-                  url: 'https://www.kolibr.io/',
+                  url: 'https://127.0.0.1:5173/',
                 },
               },
             ],
@@ -90,7 +90,7 @@ export class TelegramService {
             {
               text: `Open App`,
               web_app: {
-                url: 'https://www.kolibr.io/',
+                url: 'https://127.0.0.1:5173/',
               },
             },
           ],

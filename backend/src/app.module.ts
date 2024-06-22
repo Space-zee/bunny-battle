@@ -3,6 +3,8 @@ import { TelegrafModule } from 'nestjs-telegraf';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GatewayModule } from './modules/gateway/gateway.module';
+import { ApiModule } from './modules/api/api.module';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
         timezone: 'Z',
-        synchronize: false,
+        synchronize: true,
         entities: ['dist/db/entities/*.entity.js'],
         migrations: ['dist/db/migrations/*.js'],
         charset: 'utf8mb4',
@@ -33,6 +35,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
     TelegramModule,
+    GatewayModule,
+    ApiModule,
   ],
 })
 export class AppModule {}

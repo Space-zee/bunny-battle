@@ -1,12 +1,6 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { WalletEntity } from './wallet.entity';
+import { RoomEntity } from './room.entity';
 
 @Entity('User')
 export class UserEntity extends BaseEntity {
@@ -34,4 +28,8 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => WalletEntity, (wallet) => wallet.user)
   @JoinColumn({ name: 'userId' })
   wallets: WalletEntity[];
+
+  @OneToMany(() => RoomEntity, (room) => room.user)
+  @JoinColumn({ name: 'userId' })
+  rooms: RoomEntity[];
 }

@@ -8,6 +8,9 @@ import { formatAddress, formatEthBalance } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useCopyToClipboard } from "usehooks-ts";
+import { useNavigate } from "react-router-dom";
+import { useAtom, useSetAtom } from "jotai/index";
+import * as coreModels from "@/core/models";
 
 const CopyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none">
@@ -25,7 +28,10 @@ const WalletBalance = () => {
   const [_, copy] = useCopyToClipboard();
 
   const wallet = "0x5d54b69b9848415d8b7abd5cb19031ec472ea1c4";
-
+  const navigate = useNavigate();
+  const [WebApp] = useAtom(coreModels.$webApp);
+  const [TgButtons] = useAtom(coreModels.$tgButtons);
+  const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
   const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
     {
       address: wallet,
@@ -61,21 +67,27 @@ const WalletBalance = () => {
     }
   };
 
-  const handleShowMainButton = () => {};
+  const handleShowMainButton = () => {
+    navigate("/create-lobby");
+  };
 
   useEffect(() => {
-    if (!TgWebApp) {
-      return;
+    $doLoadWebApp();
+    if (TgButtons) {
+      TgButtons.hideBackButton();
+      TgButtons.showMainButton(handleShowMainButton, {
+        color: "#2ED3B7",
+        text: "Create DumBattle",
+        text_color: "#000000",
+        is_active: true,
+        is_visible: true,
+      });
     }
-
-    const tgButtons = new TgButtons(TgWebApp);
-
-    tgButtons.showMainButton(handleShowMainButton, {});
-  }, []);
+  }, [WebApp]);
 
   return (
     <div
-      className="fixed w-full bottom-[60px] left-0"
+      className="fixed w-full bottom-[20px] left-0"
       onClick={() => handleCopyAddress()}
     >
       <Container>
