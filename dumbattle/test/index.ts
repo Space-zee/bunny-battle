@@ -1,7 +1,7 @@
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Address } from "cluster";
-import { parseEther } from "ethers";
+import { ContractTransactionReceipt, parseEther } from "ethers";
 import { ethers } from "hardhat";
 import { BunnyBattle } from "../typechain-types";
 
@@ -21,13 +21,13 @@ const player2Create = {
   ],
 };
 
-let account1: HardhatEthersSigner, account2: HardhatEthersSigner;
+let account1: HardhatEthersSigner, account2: HardhatEthersSigner, owner: HardhatEthersSigner;
 let createVerifier, moveVerifier;
 let bunnyBattle: BunnyBattle;
 
 describe("Battleship", function () {
   beforeEach(async ()=>{
-     [account1, account2] = await ethers.getSigners();
+     [owner, account1, account2] = await ethers.getSigners();
 
     const CreateVerifier = await ethers.getContractFactory("contracts/createVerifier.sol:Groth16Verifier");
     createVerifier = await CreateVerifier.deploy();
@@ -123,7 +123,7 @@ describe("Battleship", function () {
     expect(await ethers.provider.getBalance(bunnyBattle.getAddress())).to.be.eq(parseEther("2"))
   })
 
-  it("Should detect winner correct", async function () {
+  it("Should detect winner correct and claim commission", async function () {
     const proof1 = await genCreateProof(player1Create);
     await bunnyBattle.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
     let game = await bunnyBattle.game(0);
@@ -199,13 +199,21 @@ describe("Battleship", function () {
       'nonce': player1Create.nonce,
       'ships': player1Create.ships,
     });
+    const prevBalanceAccount2 = await ethers.provider.getBalance(account2.address)
     await bunnyBattle.connect(account1).submitMove(0, 1, 1, proof6.solidityProof, true);
     game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(5);
     expect(game.moves[3].isHit).to.equal(true);
     expect(game.winner).to.equal(account2);
-
-
+    const commission =  parseEther("2") *  parseEther("1") /  parseEther("100");
+    expect(await ethers.provider.getBalance(account2.address)).to.be.eq(prevBalanceAccount2 + parseEther("2") - commission)
+    expect(await bunnyBattle.accumulatedFee()).to.be.eq(commission)
+    const prevBalanceOwner = await ethers.provider.getBalance(owner.address)
+    const tx = await bunnyBattle.connect(owner).claimCommission();
+    const receipt: ContractTransactionReceipt = await tx.wait() as ContractTransactionReceipt;
+    const gasCostForTxn = receipt.gasUsed * receipt.gasPrice
+    expect(await ethers.provider.getBalance(bunnyBattle.getAddress())).to.be.eq("0");
+    expect(await ethers.provider.getBalance(owner.address)).to.be.eq(prevBalanceOwner + commission - gasCostForTxn);
   });
 });
 

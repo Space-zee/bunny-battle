@@ -200,7 +200,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     
     uint256 treasuryFee = g.totalBetAmount * feePercentage / 100 ether;
     accumulatedFee += treasuryFee;
-    _sendEther(msg.sender, g.totalBetAmount - treasuryFee);
+    _sendEther(winner, g.totalBetAmount - treasuryFee);
     emit CommissionAccumulated(_gameID, treasuryFee);
   }
 
