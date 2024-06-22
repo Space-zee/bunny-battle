@@ -8,11 +8,11 @@ const EtherIcon = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      fill="#15B79E"
+      fill="#D444F1"
       d="M11.804 9.785 6.089 0 .375 9.785l5.714 3.49 5.715-3.49Z"
     />
     <path
-      fill="#15B79E"
+      fill="#D444F1"
       d="m6.09 15.207 5.714-3.49L6.08 20 .375 11.702l5.714 3.505Z"
     />
   </svg>

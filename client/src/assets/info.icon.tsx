@@ -8,7 +8,7 @@ const InfoIcon = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <g
-      stroke="#15B79E"
+      stroke="#D444F1"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={1.333}

@@ -15,10 +15,12 @@ const AvailableRooms = () => {
 
   useEffect(() => {
     const call = async () => {
-      const res = await httpClient.get<IGetActiveRoomsRes[]>(apiPaths.getActiveRooms());
-        if(res.data) {
-          setRooms(res.data);
-        }
+      const res = await httpClient.get<IGetActiveRoomsRes[]>(
+        apiPaths.getActiveRooms()
+      );
+      if (res.data) {
+        setRooms(res.data);
+      }
     };
     call();
   }, []);
@@ -48,9 +50,13 @@ const AvailableRooms = () => {
   }, []);
 
   const onSelectRoom = (roomId: string) => {
-    socket.emit('joinRoom', { roomId, telegramUserId: 1 });
+    socket.emit("joinRoom", { roomId, telegramUserId: 1 });
     navigate(`/game/${roomId}?isReady=true`);
-  }
+  };
+
+  const isFightButtonDisabled = (roomUsername: string) => {
+    return TgWebApp.initDataUnsafe.user?.username === roomUsername;
+  };
 
   return (
     <div className="flex flex-col gap-2 pb-[20px]">
@@ -59,10 +65,18 @@ const AvailableRooms = () => {
           key={item.roomId}
           className="flex items-center justify-between bg-gn-900 rounded-xl p-2"
         >
-          <span className="font-medium text-base text-white">@{item.username}</span>
+          <span className="font-medium text-base text-white">
+            @{item.username}
+          </span>
           <div className="flex items-center gap-3">
             <span className="text-base text-white">⚔ {item.bet}</span>
-            <Button className="bg-white text-black" onClick={() => onSelectRoom(item.roomId)}>Fight</Button>
+            <Button
+              className="bg-white text-black"
+              onClick={() => onSelectRoom(item.roomId)}
+              disabled={isFightButtonDisabled(item.username)}
+            >
+              Fight
+            </Button>
           </div>
         </div>
       ))}
