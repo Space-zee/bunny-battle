@@ -4,6 +4,7 @@ import { Container } from "../general/container";
 import { WalletBalance } from "../general/wallet-balance";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import { PageTitle } from "../general/page-title";
 
 interface Tab {
   name: string;
@@ -58,7 +59,7 @@ const Lobby = () => {
       <Container>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-6 pt-9">
-            <h2 className="text-3xl font-bold text-center text-white">Lobby</h2>
+            <PageTitle>Lobby</PageTitle>
             <Tabs />
           </div>
           <Outlet />

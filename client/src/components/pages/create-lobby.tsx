@@ -18,6 +18,7 @@ import {
   FormItem,
   FormMessage,
 } from "../ui/form";
+import { PageTitle } from "../general/page-title";
 
 interface LabelProps {
   children: ReactNode;
@@ -82,14 +83,11 @@ const CreateLobby = () => {
   return (
     <>
       <Container className="flex flex-col gap-7">
-        <div className="flex items-center justify-center gap-1 mt-[88px] w-full">
-          <h2 className="text-3xl font-bold text-center text-white flex">
-            Create
-          </h2>
-          <h2 className="text-3xl font-bold text-center flex text-teal-400">
-            DumBattle
-          </h2>
-        </div>
+        <PageTitle>
+          <span>Create</span>
+          <span className="text-teal-400">DumBattle</span>
+        </PageTitle>
+
         <Form {...form}>
           <form
             className="flex flex-col gap-5 w-full"
