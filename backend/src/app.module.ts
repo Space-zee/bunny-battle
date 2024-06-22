@@ -38,7 +38,7 @@ import { BlockchainListenerModule } from './modules/blockchainListener/blockchai
     TelegramModule,
     GatewayModule,
     ApiModule,
-    BlockchainListenerModule,
+    //BlockchainListenerModule,
   ],
 })
 export class AppModule {}
