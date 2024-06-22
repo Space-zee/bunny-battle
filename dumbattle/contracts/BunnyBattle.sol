@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IBunnyBattle } from "./interfaces/IBunnyBattle.sol";
-import { ICreateVerifier, IMoveVerifier } from "./interfaces/IProofVerification.sol";
+import { IBoardVerifier, IMoveVerifier } from "./interfaces/IProofVerification.sol";
 
 /// @dev BunnyBattle contract that uses zk proof for fair game 
 contract BunnyBattle is Ownable, IBunnyBattle {
@@ -14,7 +14,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   uint256 constant public minBetAmount = 0.001 ether;
 
   /// @dev proof verifier contracts 
-  ICreateVerifier public immutable createVerifier;
+  IBoardVerifier public immutable boardVerifier;
   IMoveVerifier public immutable moveVerifier;
 
   /// @dev id of the next game
@@ -25,21 +25,21 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   mapping(uint256 => Game) private games;
 
   /// @dev Initialize constructor parameters
-  /// @param _createVerifier verifier contract for create game and join game proof
+  /// @param _boardVerifier verifier contract for board creation proof to start or join
   /// @param _moveVerifier verifier contract for making a move proof
   constructor (
-    ICreateVerifier _createVerifier,
+    IBoardVerifier _boardVerifier,
     IMoveVerifier _moveVerifier
   ) Ownable(msg.sender){
-    createVerifier = _createVerifier;
+    boardVerifier = _boardVerifier;
     moveVerifier = _moveVerifier;
   }
 
   /// @dev Create new game with the first player as msg.sender
-  /// @param _proof proof that verify board creation
-  /// @param _boardHash hash of the initial board state, we use it to make sure user do not change the initial board view
+  /// @param _proof proof of board creation
+  /// @param _boardHash hash of the initial board state, to make sure user doesn't change the initial board view
   /// @param _betAmount amount of the bet for the current game. Both user should pay this amount to join the game. 
-  /// The user who create game set bet amount. 
+  /// The user creates game and sets bet amount. 
   /// Emits as {GameCreated} event
   function createGame(
     bytes calldata _proof,
@@ -65,9 +65,9 @@ contract BunnyBattle is Ownable, IBunnyBattle {
 
   /// @dev Join game with id `_gameID`
   /// @param _gameID id of the game to join
-  /// @param _proof proof that verify board creation
-  /// @param _boardHash hash of the initial board state, we user it to make sure user do not change the initial board view
-  /// The user need to deposit betAmount to join the game
+  /// @param _proof proof of board creation
+  /// @param _boardHash hash of the initial board state, to make sure user doesn't change the initial board view
+  /// The user needs to deposit betAmount to join the game
   /// Emits as {GameJoined} event
   function joinGame(
     uint32 _gameID,
@@ -197,7 +197,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   ) internal {
     uint256[8] memory p = abi.decode(_proof, (uint256[8]));
     if(
-      !createVerifier.verifyProof(
+      !boardVerifier.verifyProof(
         [p[0], p[1]],
         [[p[2], p[3]], [p[4], p[5]]],
         [p[6], p[7]],

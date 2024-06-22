@@ -5,10 +5,10 @@ const { ethers, run } = require("hardhat");
 async function main() {
   // We get the contract to deploy
 
-  const CreateVerifier = await ethers.getContractFactory("contracts/createVerifier.sol:Groth16Verifier");
-  const createVerifier = await CreateVerifier.deploy();
-  await createVerifier.waitForDeployment();
-  console.log("CreateVerifier: ", await createVerifier.getAddress());
+  const BoardVerifier = await ethers.getContractFactory("contracts/boardVerifier.sol:Groth16Verifier");
+  const boardVerifier = await BoardVerifier.deploy();
+  await boardVerifier.waitForDeployment();
+  console.log("BoardVerifier: ", await boardVerifier.getAddress());
 
   const MoveVerifier = await ethers.getContractFactory("contracts/moveVerifier.sol:Groth16Verifier");
   const moveVerifier = await MoveVerifier.deploy();
@@ -16,7 +16,7 @@ async function main() {
   console.log("MoveVerifier: ", await moveVerifier.getAddress());
 
   const BunnyBattle = await ethers.getContractFactory("BunnyBattle");
-  const bunnyBattle = await BunnyBattle.deploy(await createVerifier.getAddress(), await moveVerifier.getAddress());
+  const bunnyBattle = await BunnyBattle.deploy(await boardVerifier.getAddress(), await moveVerifier.getAddress());
   await bunnyBattle.waitForDeployment();
   console.log("BunnyBattle: ", await bunnyBattle.getAddress());
 
@@ -25,7 +25,7 @@ async function main() {
     console.log("Starting verification process...");
     await run("verify:verify", {
       address: await bunnyBattle.getAddress(),
-      constructorArguments: [await createVerifier.getAddress(), await moveVerifier.getAddress()],
+      constructorArguments: [await boardVerifier.getAddress(), await moveVerifier.getAddress()],
     });
     const network = await ethers.provider.getNetwork();
     // Determine the network and construct the Scrollscan URL

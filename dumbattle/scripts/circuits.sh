@@ -4,7 +4,7 @@ set -e
 cd ..
 mkdir -p circom
 
-CONTRACTS="create move"
+CONTRACTS="board move"
 
 for contract in $CONTRACTS; do
   rm -rf circom/$contract
