@@ -7,9 +7,11 @@ import { ICreateVerifier, IMoveVerifier } from "./interfaces/IProofVerification.
 /// @dev BunnyBattle contract that uses zk proof for fair game 
 contract BunnyBattle is Ownable, IBunnyBattle {
   /// @dev fee percentage amount that subtract from each game pool prize
-  uint256 constant feePercentage = 1 ether; // 1 %
+  uint256 constant public feePercentage = 1 ether; // 1 %
   /// @dev time that allowed for user to make a move
-  uint256 constant makeMoveTimestamp = 60 seconds;
+  uint256 constant public makeMoveTimestamp = 60 seconds;
+  /// @dev min bet amount for game deposit
+  uint256 constant public minBetAmount = 0.001 ether;
 
   /// @dev proof verifier contarcts
   ICreateVerifier public immutable createVerifier;
@@ -45,6 +47,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     uint256 _betAmount
   ) external payable returns (uint256) {
     _requireCreateProof(_proof, _boardHash);
+    if (_betAmount < minBetAmount) revert IncorrectBetAmount();
 
     uint256 _currentID = nextGameID;
     nextGameID += 1;
