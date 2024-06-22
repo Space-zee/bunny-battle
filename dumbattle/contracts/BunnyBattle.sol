@@ -13,7 +13,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   /// @dev min bet amount for game deposit
   uint256 constant public minBetAmount = 0.001 ether;
 
-  /// @dev proof verifier contarcts
+  /// @dev proof verifier contracts 
   ICreateVerifier public immutable createVerifier;
   IMoveVerifier public immutable moveVerifier;
 
@@ -97,7 +97,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   /// @param _proof proof that verify prev move
   /// @param isPreviousMoveAHit point if the prev move was a hit
   /// We check if the user gor 2 hits to detect the winner
-  /// User has only 1 minute to make a move otherwise technical lose will apear
+  /// User has only 1 minute to make a move otherwise technical lose will appear
   /// Emits as {MoveSubmitted} event and {GameFinished} event
   function submitMove(
     uint32 _gameID,
