@@ -33,7 +33,25 @@ const PrepareRabits = () => {
     }
   };
 
-  return <Board onClick={handleSetRabbit} />;
+  return (
+    <div className="flex flex-col w-full gap-2">
+      <Board onClick={handleSetRabbit} />
+      <div className="w-full flex gap-1 py-2 px-3">
+        <div className="w-full flex gap-2">
+          <span className="font-bold text-base">🐇</span>
+          <span className="text-sm text-gn-500">
+            Select 2 cells where you will place your Rabbits
+          </span>
+        </div>
+        <div className="flex items-center font-semibold text-xl">
+          <span className="text-fuchsia-300">
+            {gameState.userRabbitsPositions?.length ?? 0}
+          </span>
+          <span className="text-gn-600">/2</span>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export { PrepareRabits };

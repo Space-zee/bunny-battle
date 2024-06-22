@@ -12,6 +12,7 @@ import { apiBaseUrl } from "@/constants/api.constant.ts";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { IJoinRoomRes } from "@/interfaces/ws.ts";
 import { useSetAtom } from "jotai/index";
+import { LogoIcon } from "@/assets/logo.icon";
 
 const Game = () => {
   const [gameState, setGameState] = useSetAtom($doGameState);
@@ -46,9 +47,22 @@ const Game = () => {
     }
   }, [gameState.stage]);
 
+  const pageTitle = useMemo(() => {
+    if (gameState.stage === "setRabits") {
+      return "Start Battle";
+    }
+
+    return (
+      <>
+        <LogoIcon />
+        <span className="text-fuchsia-400">#{gameState.gameId}</span>
+      </>
+    );
+  }, [gameState.gameId, gameState.stage]);
+
   return (
     <Container className="flex flex-col items-center">
-      <PageTitle>Start Battle</PageTitle>
+      <PageTitle>{pageTitle}</PageTitle>
       <GameHeader />
       <div className="w-full flex flex-col items-center justify-cente mt-5 gap-2">
         <TurnInfo />

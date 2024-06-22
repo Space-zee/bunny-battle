@@ -16,6 +16,7 @@ export type GameStateStage =
   | "gameEnded";
 
 export interface GameState {
+  gameId: number | null;
   stage: GameStateStage;
   isUserTurn: boolean;
   prizePool: number;
