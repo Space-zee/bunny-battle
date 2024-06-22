@@ -6,7 +6,7 @@ import { ICreateVerifier, IMoveVerifier } from "./interfaces/IProofVerification.
 
 /// @dev BunnyBattle contract that uses zk proof for fair game 
 contract BunnyBattle is Ownable, IBunnyBattle {
-  /// @dev fee percentage amount that substract from each game pool prize
+  /// @dev fee percentage amount that subtract from each game pool prize
   uint256 constant feePercentage = 1 ether; // 1 %
   /// @dev time that allowed for user to make a move
   uint256 constant makeMoveTimestamp = 60 seconds;
@@ -35,7 +35,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
 
   /// @dev Create new game with the first player as msg.sender
   /// @param _proof proof that verify board creation
-  /// @param _boardHash hash of the initial board satte, we user it to make sure user do not change the intial board view
+  /// @param _boardHash hash of the initial board state, we use it to make sure user do not change the initial board view
   /// @param _betAmount amount of the bet for the current game. Both user should pay this amount to join the game. 
   /// The user who create game set bet amount. 
   /// Emits as {GameCreated} event
@@ -63,7 +63,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   /// @dev Join game with id `_gameID`
   /// @param _gameID id of the game to join
   /// @param _proof proof that verify board creation
-  /// @param _boardHash hash of the initial board state, we user it to make sure user do not change the intial board view
+  /// @param _boardHash hash of the initial board state, we user it to make sure user do not change the initial board view
   /// The user need to deposit betAmount to join the game
   /// Emits as {GameJoined} event
   function joinGame(
@@ -144,7 +144,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     emit MoveSubmitted(_gameID, msg.sender, _moveX, _moveY, isPreviousMoveAHit);
   }
 
-  /// @dev Claim commision accumulated on the contract
+  /// @dev Claim commission accumulated on the contract
   /// Only owner can call the function
   /// Emits as {CommissionClaimed} event
   function claimCommission() external onlyOwner {
@@ -157,7 +157,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
   /// @dev Claim reward in the case of the technical lose
   /// If the first player didn't make a first move the second player win
   /// If any of the player miss the move the player with the last turn win
-  /// Can't be called if the game was finished natullary
+  /// Can't be called if the game was finished naturalll
   function claimReward(uint256 _gameID) external {
     Game storage g = games[_gameID];
     if(g.nextMoveDeadline > block.timestamp || g.winner != address(0)) revert FailedToClaimReward();
