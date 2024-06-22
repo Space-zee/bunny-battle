@@ -4,7 +4,7 @@ import { WalletBalance } from "../general/wallet-balance";
 import { Input } from "../ui/input";
 import { EtherIcon } from "@/assets/ether.icon";
 import { cn } from "@/lib/utils";
-import { InfoIcon } from "@/assets/inco.icon";
+import { InfoIcon } from "@/assets/info.icon";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -157,7 +157,7 @@ const CreateLobby = () => {
       <Container className="flex flex-col gap-7">
         <PageTitle>
           <span>Create</span>
-          <span className="text-teal-400">DumBattle</span>
+          <span className="text-fuchsia-400">BunnBattle</span>
         </PageTitle>
 
         <Form {...form}>

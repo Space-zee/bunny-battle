@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { useAtomValue } from "jotai";
 import { $doGameState } from "@/core/models/game";
 import { GameStarted } from "../game/game-started";
+import { LogoIcon } from "@/assets/logo.icon";
 
 const Game = () => {
   const gameState = useAtomValue($doGameState);
@@ -20,9 +21,22 @@ const Game = () => {
     }
   }, [gameState.stage]);
 
+  const pageTitle = useMemo(() => {
+    if (gameState.stage === "setRabits") {
+      return "Start Battle";
+    }
+
+    return (
+      <>
+        <LogoIcon />
+        <span className="text-fuchsia-400">#{gameState.gameId}</span>
+      </>
+    );
+  }, [gameState.gameId, gameState.stage]);
+
   return (
     <Container className="flex flex-col items-center">
-      <PageTitle>Start Battle</PageTitle>
+      <PageTitle>{pageTitle}</PageTitle>
       <GameHeader />
       <div className="w-full flex flex-col items-center justify-cente mt-5 gap-2">
         <TurnInfo />
