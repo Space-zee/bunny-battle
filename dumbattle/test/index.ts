@@ -126,29 +126,17 @@ describe("Battleship", function () {
   it("TechnicalLose possible", async function () {
     const [account1, account2] = await ethers.getSigners();
 
-    const CreateVerifier = await ethers.getContractFactory("contracts/createVerifier.sol:Groth16Verifier");
-    const createVerifier = await CreateVerifier.deploy();
-    await createVerifier.waitForDeployment();
-
-    const MoveVerifier = await ethers.getContractFactory("contracts/moveVerifier.sol:Groth16Verifier");
-    const moveVerifier = await MoveVerifier.deploy();
-    await moveVerifier.waitForDeployment();
-
-    const Battleship = await ethers.getContractFactory("BunnyBattle");
-    const battleship = await Battleship.deploy(createVerifier.getAddress(), moveVerifier.getAddress());
-    await battleship.waitForDeployment();
-  
     const proof1 = await genCreateProof(player1Create);
-    await battleship.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
-    let game = await battleship.game(0);
+    await bunnyBattle.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
+    let game = await bunnyBattle.game(0);
 
     const proof2 = await genCreateProof(player2Create);
-    await battleship.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0],  { value: parseEther("1") });
-    game = await battleship.game(0);
+    await bunnyBattle.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0],  { value: parseEther("1") });
+    game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(0);
 
-    await battleship.connect(account1).submitMove(0, 1, 2, emptyProof, false);
-    game = await battleship.game(0);
+    await bunnyBattle.connect(account1).submitMove(0, 1, 2, emptyProof, false);
+    game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(1);
     let prevMove = game.moves[0];
 
@@ -160,8 +148,6 @@ describe("Battleship", function () {
       'nonce': player2Create.nonce,
       'ships': player2Create.ships,
     });
-    await battleship.connect(account2).submitMove(0, 0, 0, proof3.solidityProof, false);
-    game = await battleship.game(0);
     await bunnyBattle.connect(account2).submitMove(0, 0, 0, proof3.solidityProof, false);
     game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(2);
@@ -189,8 +175,8 @@ describe("Battleship", function () {
       'nonce': player1Create.nonce,
       'ships': player1Create.ships,
     });
-    await battleship.connect(account1).submitMove(0, 2, 1, proof4.solidityProof, true);
-    game = await battleship.game(0);
+    await bunnyBattle.connect(account1).submitMove(0, 2, 1, proof4.solidityProof, true);
+    game = await bunnyBattle.game(0);
     prevMove = game.moves[2];
     block = await ethers.provider.getBlock("latest");
     timestamp = block.timestamp;
@@ -200,12 +186,7 @@ describe("Battleship", function () {
     // // Move time forward by 1 min (60 seconds)
     await ethers.provider.send("evm_increaseTime", [60]);
     await ethers.provider.send("evm_mine", []);
-
-    await bunnyBattle.connect(account1).submitMove(0, 2, 1, proof4.solidityProof, true);
-    game = await bunnyBattle.game(0);
-    expect(game.moves.length).to.equal(3);
-
-    prevMove = game.moves[2];
+    
     const proof5 = await genMoveProof({
       // Public Inputs
       'boardHash': game.player2Hash.toString(),
@@ -216,9 +197,9 @@ describe("Battleship", function () {
     });
     block = await ethers.provider.getBlock("latest");
     expect(lastNextTimestamp).to.be.lessThanOrEqual(block?.timestamp); // timestamp is changed correctly 
-    await expect(battleship.connect(account2).submitMove(0, 2, 2, proof5.solidityProof, true)).to.be.rejectedWith("TechnicalLose");
+    await expect(bunnyBattle.connect(account2).submitMove(0, 2, 2, proof5.solidityProof, true)).to.be.rejectedWith("TechnicalLose");
 
-    game = await battleship.game(0);
+    game = await bunnyBattle.game(0);
     expect(game.winner).to.eq(ZeroAddress);
     
     // check claimReward
