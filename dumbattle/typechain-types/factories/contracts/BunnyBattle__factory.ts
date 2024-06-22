@@ -425,6 +425,7 @@ const _abi = [
           {
             internalType: "uint256",
             name: "nextMoveDeadline",
+            name: "totalBetAmount",
             type: "uint256",
           },
           {

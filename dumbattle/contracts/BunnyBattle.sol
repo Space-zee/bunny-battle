@@ -92,12 +92,12 @@ contract BunnyBattle is Ownable, IBunnyBattle {
       Move storage previousMove = g.moves[g.movesSize - 1];
       _requireMoveProof(_proof, _boardHash, isPreviousMoveAHit, previousMove.x, previousMove.y);
       previousMove.isHit = isPreviousMoveAHit;
-      if  (isPreviousMoveAHit) g.totalHits[g.movesSize % 2 == 0 ? g.player2 : g.player1]++;
+      if  (isPreviousMoveAHit) g.totalHits[msg.sender]++;
     }
 
     // check previous player move
-    if (g.totalHits[g.movesSize % 2 == 0 ? g.player2 : g.player1 ] == 2){
-      g.winner = g.movesSize % 2 == 0 ? g.player1 : g.player2;
+    if (g.totalHits[msg.sender] == 2){
+      g.winner = g.movesSize % 2 == 0 ? g.player2 : g.player1;
       _claimReward(_gameID, g.winner);
       emit GameFinished(_gameID, g.winner, g.movesSize);
     }
@@ -137,10 +137,12 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     return GamePublicMetadata({
       player1: g.player1,
       player1Hash: g.player1Hash,
+      winner: g.winner,
       player2: g.player2,
       player2Hash: g.player2Hash,
       nextMoveDeadline: g.nextMoveDeadline,
       winner: g.winner,
+      totalBetAmount: g.totalBetAmount,
       moves: _moves
     });
   }

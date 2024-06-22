@@ -1,6 +1,9 @@
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ZeroAddress, parseEther } from "ethers";
+import { Address } from "cluster";
 import { ethers } from "hardhat";
+import { BunnyBattle } from "../typechain-types";
 
 const player1Create = {
   "nonce": 12345,
@@ -18,40 +21,46 @@ const player2Create = {
   ],
 };
 
+let account1: HardhatEthersSigner, account2: HardhatEthersSigner;
+let createVerifier, moveVerifier;
+let bunnyBattle: BunnyBattle;
+
 describe("Battleship", function () {
-  it("Should play properly", async function () {
-    const [account1, account2] = await ethers.getSigners();
+  beforeEach(async ()=>{
+     [account1, account2] = await ethers.getSigners();
 
     const CreateVerifier = await ethers.getContractFactory("contracts/createVerifier.sol:Groth16Verifier");
-    const createVerifier = await CreateVerifier.deploy();
+    createVerifier = await CreateVerifier.deploy();
     await createVerifier.waitForDeployment();
 
     const MoveVerifier = await ethers.getContractFactory("contracts/moveVerifier.sol:Groth16Verifier");
-    const moveVerifier = await MoveVerifier.deploy();
+    moveVerifier = await MoveVerifier.deploy();
     await moveVerifier.waitForDeployment();
 
-    const Battleship = await ethers.getContractFactory("BunnyBattle");
-    const battleship = await Battleship.deploy(createVerifier.getAddress(), moveVerifier.getAddress());
-    await battleship.waitForDeployment();
-  
+    const BunnyBattle = await ethers.getContractFactory("BunnyBattle");
+    bunnyBattle = await BunnyBattle.deploy(createVerifier.getAddress(), moveVerifier.getAddress());
+    await bunnyBattle.waitForDeployment();
+
+  })
+  it("Should play properly", async function () {
     const proof1 = await genCreateProof(player1Create);
-    await battleship.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
-    let game = await battleship.game(0);
+    await bunnyBattle.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
+    let game = await bunnyBattle.game(0);
     expect(game.player1 === account1.address);
     expect(game.player2 === '0x0000000000000000000000000000000000000000');
     expect(game.player1Hash).to.eq(BigInt(proof1.inputs[0]));
 
     const proof2 = await genCreateProof(player2Create);
-    await battleship.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0],  { value: parseEther("1") });
-    game = await battleship.game(0);
+    await bunnyBattle.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0],  { value: parseEther("1") });
+    game = await bunnyBattle.game(0);
     expect(game.player1).to.equal(account1.address);
     expect(game.player2).to.equal(account2.address);
     expect(game.player1Hash).to.eq(BigInt(proof1.inputs[0]));
     expect(game.player2Hash).to.eq(BigInt(proof2.inputs[0]));
     expect(game.moves.length).to.equal(0);
 
-    await battleship.connect(account1).submitMove(0, 1, 2, emptyProof, false);
-    game = await battleship.game(0);
+    await bunnyBattle.connect(account1).submitMove(0, 1, 2, emptyProof, false);
+    game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(1);
     let prevMove = game.moves[0];
     expect(prevMove.x).to.eq(BigInt(1));
@@ -66,8 +75,8 @@ describe("Battleship", function () {
       'nonce': player2Create.nonce,
       'ships': player2Create.ships,
     });
-    await battleship.connect(account2).submitMove(0, 0, 0, proof3.solidityProof, false);
-    game = await battleship.game(0);
+    await bunnyBattle.connect(account2).submitMove(0, 0, 0, proof3.solidityProof, false);
+    game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(2);
     expect(game.moves[0].isHit).to.equal(false);
     prevMove = game.moves[1];
@@ -82,11 +91,37 @@ describe("Battleship", function () {
       'nonce': player1Create.nonce,
       'ships': player1Create.ships,
     });
-    await battleship.connect(account1).submitMove(0, 2, 1, proof4.solidityProof, true);
-    game = await battleship.game(0);
+    await bunnyBattle.connect(account1).submitMove(0, 2, 1, proof4.solidityProof, true);
+    game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(3);
 
   });
+
+  it("Should deposit correct once game is created", async function () {
+    const proof1 = await genCreateProof(player1Create);
+    await bunnyBattle.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
+    let game = await bunnyBattle.game(0);
+    expect(game.player1 === account1.address);
+    expect(game.player2 === '0x0000000000000000000000000000000000000000');
+    expect(game.player1Hash).to.eq(BigInt(proof1.inputs[0]));
+    expect(game.totalBetAmount).to.eq(parseEther("1"));
+    expect(await ethers.provider.getBalance(bunnyBattle.getAddress())).to.be.eq(parseEther("1"))
+  })
+
+  it("Should deposit correct once join game", async function () {
+    const proof1 = await genCreateProof(player1Create);
+    await bunnyBattle.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
+    
+    const proof2 = await genCreateProof(player2Create);
+    await bunnyBattle.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0],  { value: parseEther("1") });
+
+    let game = await bunnyBattle.game(0);
+    expect(game.player1 === account1.address);
+    expect(game.player2 === account2.address);
+    expect(game.player1Hash).to.eq(BigInt(proof1.inputs[0]));
+    expect(game.totalBetAmount).to.eq(parseEther("2"));
+    expect(await ethers.provider.getBalance(bunnyBattle.getAddress())).to.be.eq(parseEther("2"))
+  })
 
   it("TechnicalLose possible", async function () {
     const [account1, account2] = await ethers.getSigners();
@@ -127,6 +162,8 @@ describe("Battleship", function () {
     });
     await battleship.connect(account2).submitMove(0, 0, 0, proof3.solidityProof, false);
     game = await battleship.game(0);
+    await bunnyBattle.connect(account2).submitMove(0, 0, 0, proof3.solidityProof, false);
+    game = await bunnyBattle.game(0);
     expect(game.moves.length).to.equal(2);
     expect(game.moves[0].isHit).to.equal(false);
     prevMove = game.moves[1];
@@ -138,12 +175,6 @@ describe("Battleship", function () {
     let timestamp = block.timestamp;
     const tmpTimestamp = game.nextMoveDeadline;
     expect(tmpTimestamp).to.be.greaterThan(timestamp); // timestamp is changed correctly 
-
-    console.log({
-      nextMoveDeadline: tmpTimestamp, 
-      timestamp
-    })
-
 
     // // Move time forward by lesst than 1 min (58 seconds)
     await ethers.provider.send("evm_increaseTime", [58]);
@@ -170,6 +201,11 @@ describe("Battleship", function () {
     await ethers.provider.send("evm_increaseTime", [60]);
     await ethers.provider.send("evm_mine", []);
 
+    await bunnyBattle.connect(account1).submitMove(0, 2, 1, proof4.solidityProof, true);
+    game = await bunnyBattle.game(0);
+    expect(game.moves.length).to.equal(3);
+
+    prevMove = game.moves[2];
     const proof5 = await genMoveProof({
       // Public Inputs
       'boardHash': game.player2Hash.toString(),
