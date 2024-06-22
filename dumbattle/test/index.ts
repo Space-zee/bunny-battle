@@ -31,19 +31,19 @@ describe("Battleship", function () {
     const moveVerifier = await MoveVerifier.deploy();
     await moveVerifier.waitForDeployment();
 
-    const Battleship = await ethers.getContractFactory("Battleship");
+    const Battleship = await ethers.getContractFactory("BunnyBattle");
     const battleship = await Battleship.deploy(createVerifier.getAddress(), moveVerifier.getAddress());
     await battleship.waitForDeployment();
   
     const proof1 = await genCreateProof(player1Create);
-    await battleship.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("10") );
+    await battleship.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("1"), { value: parseEther("1") });
     let game = await battleship.game(0);
     expect(game.player1 === account1.address);
     expect(game.player2 === '0x0000000000000000000000000000000000000000');
     expect(game.player1Hash).to.eq(BigInt(proof1.inputs[0]));
 
     const proof2 = await genCreateProof(player2Create);
-    await battleship.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0]);
+    await battleship.connect(account2).joinGame(0, proof2.solidityProof, proof2.inputs[0],  { value: parseEther("1") });
     game = await battleship.game(0);
     expect(game.player1).to.equal(account1.address);
     expect(game.player2).to.equal(account2.address);
