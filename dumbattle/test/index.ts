@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { parseEther } from "ethers";
 import { ethers } from "hardhat";
 
 
@@ -35,7 +36,7 @@ describe("Battleship", function () {
     await battleship.waitForDeployment();
   
     const proof1 = await genCreateProof(player1Create);
-    await battleship.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0]);
+    await battleship.connect(account1).createGame(proof1.solidityProof, proof1.inputs[0], parseEther("10") );
     let game = await battleship.game(0);
     expect(game.player1 === account1.address);
     expect(game.player2 === '0x0000000000000000000000000000000000000000');

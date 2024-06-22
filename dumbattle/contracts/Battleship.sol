@@ -1,5 +1,6 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.24;
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 interface ICreateVerifier {
   function verifyProof(
@@ -19,7 +20,7 @@ interface IMoveVerifier {
   ) external returns (bool);
 }
 
-contract Battleship {
+contract Battleship is Ownable{
   ICreateVerifier public immutable createVerifier;
   IMoveVerifier public immutable moveVerifier;
 
@@ -32,10 +33,14 @@ contract Battleship {
   struct Game {
     address player1;
     address player2;
+    address winner;
     uint256 player1Hash;
     uint256 player2Hash;
-    mapping(uint => Move) moves;
-    uint movesSize;
+    uint256 betAmount;
+    uint256 totalBetAmount;
+    uint256 movesSize;
+    mapping(uint256 => Move) moves;
+    mapping(address => uint256) totalHits;
   }
 
   struct GamePublicMetadata {
@@ -47,12 +52,14 @@ contract Battleship {
   }
 
   uint32 nextGameID;
-  mapping(uint32 => Game) games;
+  mapping(uint256 => Game) games;
+  uint256 feePercentage = 0.001 ether; // 0.001 %
+  uint256 public accumulatedFee;
 
-  constructor(
+  constructor (
     ICreateVerifier _createVerifier,
     IMoveVerifier _moveVerifier
-  ) {
+  ) Ownable(msg.sender){
     createVerifier = _createVerifier;
     moveVerifier = _moveVerifier;
   }
@@ -94,8 +101,9 @@ contract Battleship {
 
   function createGame(
     bytes calldata _proof,
-    uint256 _boardHash
-  ) external returns (uint32) {
+    uint256 _boardHash,
+    uint256 _betAmount
+  ) external payable returns (uint32) {
     requireCreateProof(_proof, _boardHash);
 
     uint32 _currentID = nextGameID;
@@ -105,6 +113,8 @@ contract Battleship {
     g.player1 = msg.sender;
     g.player1Hash = _boardHash;
     g.movesSize = 0;
+    g.betAmount = _betAmount;
+    _depositEther(_currentID, msg.value);
 
     return _currentID;
   }
@@ -113,7 +123,7 @@ contract Battleship {
     uint32 _gameID,
     bytes calldata _proof,
     uint256 _boardHash
-  ) external {
+  ) external payable {
     require(_gameID >= 0, "Invalid Game ID");
     require(_gameID < nextGameID, "Invalid Game ID");
 
@@ -123,6 +133,7 @@ contract Battleship {
     require(g.player2 == address(0), "Game is full");
 
     requireCreateProof(_proof, _boardHash);
+    _depositEther(_gameID, msg.value);
 
     g.player2 = msg.sender;
     g.player2Hash = _boardHash;
@@ -138,6 +149,7 @@ contract Battleship {
     require(_gameID >= 0, "Invalid Game ID");
     require(_gameID < nextGameID, "Invalid Game ID");
     Game storage g = games[_gameID];
+    require(g.winner == address(0), "Game is finished");
 
     uint256 _boardHash = g.player1Hash;
     if (g.movesSize % 2 == 0) {
@@ -155,9 +167,14 @@ contract Battleship {
       Move storage previousMove = g.moves[g.movesSize - 1];
       requireMoveProof(_proof, _boardHash, isPreviousMoveAHit, previousMove.x, previousMove.y);
       previousMove.isHit = isPreviousMoveAHit;
+      if  (isPreviousMoveAHit) g.totalHits[g.movesSize % 2 == 0 ? g.player2 : g.player1]++;
     }
 
-    // TODO: Handle winning / ending the game!
+    // check previous player move
+    if (g.totalHits[g.movesSize % 2 == 0 ? g.player2 : g.player1 ] == 2){
+      g.winner = g.movesSize % 2 == 0 ? g.player1 : g.player2;
+      _claimReward(_gameID, g.winner);
+    }
     
     g.moves[g.movesSize] = Move({
       x: _moveX,
@@ -167,13 +184,34 @@ contract Battleship {
     g.movesSize += 1;
   }
 
+  function _depositEther(uint256 _gameID, uint256 betAmount) internal {
+    Game storage g = games[_gameID];
+    require (msg.value == betAmount, "Incorrect bet amount");
+    g.totalBetAmount += msg.value;
+  }
+
+  function _claimReward(uint256 _gameID, address winner) internal {
+    Game storage g = games[_gameID];
+    require(winner == g.winner, "Not a winner");
+    uint256 treasuryFee = g.totalBetAmount * feePercentage / 100 ether;
+    accumulatedFee += treasuryFee;
+    _sendEther(msg.sender, g.totalBetAmount - treasuryFee);
+  }
+
+  function claimCommission() public onlyOwner {
+    require(accumulatedFee > 0, "Nothing to claim");
+    _sendEther(msg.sender, accumulatedFee);
+  }
+
+  function _sendEther(address account, uint256 amount) private{
+    (bool success, ) = account.call{value: amount}("");
+    require(success, "Failed to send Ether");
+  }
+
   function game(uint32 _gameID) public view returns (GamePublicMetadata memory) {
     require(_gameID >= 0, "Invalid Game ID");
     require(_gameID < nextGameID, "Invalid Game ID");
     Game storage g = games[_gameID];
-
-    // Solidity doesn't let us return mappings, so we create a dummy struct
-    // with an array to store our moves.
 
     Move[] memory _moves = new Move[](g.movesSize);
     for (uint i = 0; i < g.movesSize; i++) {

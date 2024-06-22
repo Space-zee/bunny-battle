@@ -14,6 +14,10 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
       name: "Battleship",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Battleship__factory>;
@@ -35,6 +39,11 @@ declare module "hardhat/types/runtime" {
     ): Promise<Contracts.Groth16Verifier__factory>;
 
     getContractAt(
+      name: "Ownable",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
       name: "Battleship",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -61,6 +70,10 @@ declare module "hardhat/types/runtime" {
     ): Promise<Contracts.Groth16Verifier>;
 
     deployContract(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Ownable>;
+    deployContract(
       name: "Battleship",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Battleship>;
@@ -81,6 +94,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Groth16Verifier>;
 
+    deployContract(
+      name: "Ownable",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Ownable>;
     deployContract(
       name: "Battleship",
       args: any[],
