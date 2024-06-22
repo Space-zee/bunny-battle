@@ -121,7 +121,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
 
   function claimReward(uint256 _gameID) external {
     Game storage g = games[_gameID];
-    if(g.nextMoveDeadline <= block.timestamp || g.winner != address(0)) revert FailedToClaimReward();
+    if(g.nextMoveDeadline > block.timestamp || g.winner != address(0)) revert FailedToClaimReward();
     _claimReward(_gameID, msg.sender);
   }
 
