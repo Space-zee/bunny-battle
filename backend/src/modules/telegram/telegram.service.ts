@@ -5,6 +5,7 @@ import { ParseMode } from 'telegraf/typings/core/types/typegram';
 import { PkService } from '../pk/pk.service';
 import { UserService } from '../user/user.service';
 import { startMsg, webAppMsg } from '../../shared/utils/msg';
+import { uiUrl } from '../../shared/constants/uiUrl.constant';
 
 @Update()
 @Injectable()
@@ -35,7 +36,7 @@ export class TelegramService {
               {
                 text: `Open App`,
                 web_app: {
-                  url: 'https://127.0.0.1:5173/',
+                  url: `${uiUrl}`,
                 },
               },
             ],
@@ -90,7 +91,7 @@ export class TelegramService {
             {
               text: `Open App`,
               web_app: {
-                url: 'https://127.0.0.1:5173/',
+                url: `${uiUrl}`,
               },
             },
           ],
