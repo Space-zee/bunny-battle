@@ -74,7 +74,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
     if(_gameID >= nextGameID) revert InvalidGameID();
     Game storage g = games[_gameID];
     if(g.winner != address(0)) revert GameIsFinished();
-    if(g.nextMoveDeadline > block.timestamp) revert TechnicalLose();
+    if(g.nextMoveDeadline > 0 && g.nextMoveDeadline < block.timestamp) revert TechnicalLose();
 
     uint256 _boardHash = g.player1Hash;
     if (g.movesSize % 2 == 0) {
@@ -84,8 +84,8 @@ contract BunnyBattle is Ownable, IBunnyBattle {
       _boardHash = g.player2Hash;
     }
 
-    if(_moveX < 0 && _moveX > 3) revert InvalidMoveX();
-    if(_moveY < 0 && _moveY > 3) revert InvalidMoveY();
+    if(_moveX < 0 && _moveX >= 3) revert InvalidMoveX();
+    if(_moveY < 0 && _moveY >= 3) revert InvalidMoveY();
 
     // for the not-first move, ensure the previous guess is marked as hit/no-hit
     if (g.movesSize > 0) {
@@ -108,7 +108,7 @@ contract BunnyBattle is Ownable, IBunnyBattle {
       isHit: false
     });
     g.movesSize += 1;
-    g.nextMoveDeadline += makeMoveTimestamp;
+    g.nextMoveDeadline = block.timestamp + makeMoveTimestamp;
     emit MoveSubmited(_gameID, msg.sender, _moveX, _moveY, isPreviousMoveAHit);
   }
 
