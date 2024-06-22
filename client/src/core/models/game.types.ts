@@ -27,4 +27,5 @@ export interface GameState {
   userMove: Coordinates | null;
   userMoves: Move[];
   enemyMoves: Move[];
+
 }

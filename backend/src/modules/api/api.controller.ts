@@ -31,14 +31,25 @@ export class ApiController {
       );
     }
   }
-  //
-  // @Post('createRoom')
-  // public async createRoom(@Body() payload: ICreateRoomReq, @Req() request: Request) {
-  //   return await this.createRoom();
-  // }
 
-  @Get('createGame')
-  public async createGame() {
-    return await this.apiService.createGame();
+  @Get('getUserWallet')
+  public async getUserWallet(@Query() query: any, @Req() request: Request): Promise<string> {
+    try {
+      this.logger.log('getActiveRooms call');
+
+      return await this.apiService.getWallet(query.telegramUserId);
+    } catch (e) {
+      this.logger.error(`api getUserWallet error | ${e}`);
+      const status = e?.response?.status ? e.response.status : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException(
+        {
+          status: status,
+          error: e?.response?.error
+            ? e.response.error
+            : 'There was a problem processing your request',
+        },
+        status,
+      );
+    }
   }
 }

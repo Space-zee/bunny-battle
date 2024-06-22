@@ -24,6 +24,8 @@ export class ApiService {
   constructor(
     @InjectRepository(RoomEntity)
     private readonly roomRepository: Repository<RoomEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   public async getBattles(): Promise<IGetActiveRoomsRes[]> {
@@ -39,6 +41,15 @@ export class ApiService {
         username: el.user.username ? el.user.username : 'Rand',
       };
     });
+  }
+
+  public async getWallet(telegramUserId: number): Promise<string> {
+    const userEntity = await this.userRepository.findOne({
+      where: { telegramUserId },
+      relations: { wallets: true },
+    });
+
+    return userEntity.wallets[0].address;
   }
 
   public async createGame() {

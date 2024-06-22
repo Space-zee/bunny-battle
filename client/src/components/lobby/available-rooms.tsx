@@ -6,6 +6,7 @@ import { apiPaths } from "@/core/httpClient/apiPaths";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { apiBaseUrl } from "@/constants/api.constant";
+import TgWebApp from "@twa-dev/sdk";
 
 const AvailableRooms = () => {
   const [rooms, setRooms] = useState<IGetActiveRoomsRes[]>([]);
@@ -22,9 +23,33 @@ const AvailableRooms = () => {
     call();
   }, []);
 
+  useEffect(() => {
+    // connect to socket
+    socket.connect();
+    socket.on("disconnect", () => {
+      // fire when socked is disconnected
+      console.log("Socket disconnected");
+    });
+    socket.on(
+      `roomCreated:${TgWebApp.initDataUnsafe.user!.id}`,
+      (body: any) => {
+        // fire when socked is disconnected
+        console.log("roomCreated", body);
+        navigate(`/game/${body.roomId}`);
+      }
+    );
+
+    // remove all event listeners
+    return () => {
+      socket.off("disconnect");
+      socket.off("connect");
+      socket.off(`joinRoom`);
+    };
+  }, []);
+
   const onSelectRoom = (roomId: string) => {
     socket.emit('joinRoom', { roomId, telegramUserId: 1 });
-    navigate(`/lobby/${roomId}?isReady=true`);
+    navigate(`/game/${roomId}?isReady=true`);
   }
 
   return (
