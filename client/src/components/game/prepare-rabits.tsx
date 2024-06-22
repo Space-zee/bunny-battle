@@ -2,10 +2,20 @@ import { useAtom } from "jotai";
 import { Board } from "../board/board";
 import { $doGameState } from "@/core/models/game";
 import { Coordinates } from "@/core/models/game.types";
+import { compareCoordinates } from "@/utils/math";
 const PrepareRabits = () => {
   const [gameState, setGameState] = useAtom($doGameState);
 
   const handleSetRabbit = (cooridnates: Coordinates) => {
+    if (
+      gameState.userRabbitsPositions &&
+      gameState.userRabbitsPositions.find((cell) =>
+        compareCoordinates(cell, cooridnates)
+      )
+    ) {
+      return;
+    }
+
     if (!gameState.userRabbitsPositions) {
       setGameState({ ...gameState, userRabbitsPositions: [cooridnates] });
     } else if (gameState.userRabbitsPositions.length === 1) {

@@ -23,7 +23,7 @@ export interface GameState {
   enemyUsername: string | null;
   isUserRoom: boolean; // One who create is true
   userRabbitsPositions: Coordinates[] | null;
-  action: Coordinates | null;
+  userMove: Coordinates | null;
   userMoves: Move[];
   enemyMoves: Move[];
 }

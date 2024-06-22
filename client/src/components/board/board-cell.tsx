@@ -9,7 +9,7 @@ import { $doGameState } from "@/core/models/game";
 
 type BoardCellState =
   | "default"
-  | "setRabbit"
+  | "rabbit"
   | "killedRabbit"
   | "enemyDefault"
   | "move"
@@ -21,7 +21,7 @@ interface BoardCellProps {
 }
 
 const cellInnerConfig: Partial<Record<BoardCellState, string | JSX.Element>> = {
-  setRabbit: "🐇",
+  rabbit: "🐇",
   killedRabbit: "❌🐇",
   enemyDefault: <QuestionMarkIcon />,
   move: <QuestionMarkIcon />,
@@ -34,26 +34,55 @@ const BoardCell = ({ index, onClick }: BoardCellProps) => {
   const cellState: BoardCellState = useMemo(() => {
     const cellCoordinates = gridIndexToCoordinates(index);
 
-    // User board
+    const moveByCoordinates = gameState.userMoves?.find((move) =>
+      compareCoordinates(cellCoordinates, move.coordinates)
+    );
 
+    // Set rabbits
     if (
-      gameState.stage === "setRabits" &&
+      (gameState.stage === "setRabits" ||
+        (gameState.stage === "gameStarted" && !gameState.isUserTurn)) &&
       gameState.userRabbitsPositions &&
       gameState.userRabbitsPositions.find((item) =>
         compareCoordinates(item, cellCoordinates)
       )
     ) {
-      return "setRabbit";
+      return "rabbit";
     }
 
-    // if ()
+    if (moveByCoordinates) {
+      // Kill
+      if (moveByCoordinates?.isHit) {
+        return "killedRabbit";
+      }
 
-    // Enemy board
+      // Miss
+      if (!moveByCoordinates?.isHit) {
+        return "miss";
+      }
+    }
 
-    // if (gameState.isUserTurn)
+    // Enemy turn
+    if (gameState.isUserTurn) {
+      if (
+        gameState.userMove &&
+        compareCoordinates(gameState.userMove, cellCoordinates)
+      ) {
+        return "move";
+      }
+
+      return "enemyDefault";
+    }
 
     return "default";
-  }, [gameState.stage, gameState.userRabbitsPositions, index]);
+  }, [
+    gameState.isUserTurn,
+    gameState.stage,
+    gameState.userMove,
+    gameState.userMoves,
+    gameState.userRabbitsPositions,
+    index,
+  ]);
 
   return (
     <div
@@ -61,7 +90,7 @@ const BoardCell = ({ index, onClick }: BoardCellProps) => {
         "w-full h-full relative rounded-lg flex justify-center items-center text-2xl",
         {
           "bg-gn-950": cellState === "default" || cellState === "miss",
-          "bg-gn-900 border-fuchisia-400 border-2": cellState === "setRabbit",
+          "bg-gn-900 border-fuchisia-400 border-2": cellState === "rabbit",
           "bg-gn-950 border-error-800 border-2": cellState === "killedRabbit",
           "bg-gn-800 border-gn-700 border-2": cellState === "enemyDefault",
           "bg-gn-800 border-fuchisia-400 border-2": cellState === "move",
