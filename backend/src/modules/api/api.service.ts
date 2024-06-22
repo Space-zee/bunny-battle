@@ -4,31 +4,45 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethers } from 'ethers';
 import { getBattleshipContract } from '../../shared/utils/getBattleshipContract';
-import { ICreateGameReq } from './interfaces';
+import { ICreateGameReq, IGetActiveRoomsRes } from './interfaces';
 import * as fs from 'fs';
+import { RoomEntity } from '../../../db/entities/room.entity';
+import { RoomStatus } from './enums';
 
-const createWC = require('./circom/create/create_js/witness_calculator.js');
-const createWasm = './circom/create/create_js/create.wasm';
-const createZkey = './circom/create/create_0001.zkey';
-const snarkjs = require('snarkjs');
-const bigInt = require('big-integer');
-const WITNESS_FILE = '/tmp/witness';
+// const createWC = require('./circom/create/create_js/witness_calculator.js');
+// const createWasm = './circom/create/create_js/create.wasm';
+// const createZkey = './circom/create/create_0001.zkey';
+// const snarkjs = require('snarkjs');
+// const bigInt = require('big-integer');
+// const WITNESS_FILE = '/tmp/witness';
 
 @Injectable()
 export class ApiService {
   private readonly logger = new Logger(ApiService.name);
 
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(RoomEntity)
+    private readonly roomRepository: Repository<RoomEntity>,
   ) {}
 
-  public async getBattles() {
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://rpc.ankr.com/scroll_sepolia_testnet',
-    );
+  public async getBattles(): Promise<IGetActiveRoomsRes[]> {
+    const roomEntity = await this.roomRepository.find({
+      relations: { user: true },
+      where: { status: RoomStatus.Active },
+    });
+    console.log('roomEntity', roomEntity);
+
+    return roomEntity.map((el) => {
+      return {
+        bet: el.bet,
+        roomId: el.roomId,
+        username: el.user.username ? el.user.username : 'Rand',
+      };
+    });
   }
 
+  public async joinLobby() {}
+  //
   // public async createGame(data: ICreateGameReq) {
   //   const provider = new ethers.providers.JsonRpcProvider(
   //     'https://rpc.ankr.com/scroll_sepolia_testnet',

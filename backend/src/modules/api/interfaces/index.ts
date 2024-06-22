@@ -7,3 +7,9 @@ export interface ICreateGameReq {
 export interface ICreateRoomReq {
   telegramUserId: number;
 }
+
+export interface IGetActiveRoomsRes {
+  username: string;
+  bet: string;
+  roomId: string;
+}

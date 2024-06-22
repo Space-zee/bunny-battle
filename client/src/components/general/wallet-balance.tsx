@@ -7,6 +7,9 @@ import { useBalance } from "wagmi";
 import { formatAddress, formatEthBalance } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useAtom, useSetAtom } from "jotai/index";
+import * as coreModels from "@/core/models";
 
 const CopyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none">
@@ -22,52 +25,55 @@ const CopyIcon = () => (
 
 const WalletBalance = () => {
   const wallet = "0x5d54b69b9848415d8b7abd5cb19031ec472ea1c4";
+  const navigate = useNavigate();
+  const [WebApp] = useAtom(coreModels.$webApp);
+  const [TgButtons] = useAtom(coreModels.$tgButtons);
+  const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
+  // const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
+  //   {
+  //     address: wallet
+  //   }
+  // );
 
-  const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
-    {
-      address: wallet,
-    }
-  );
-
-  const formattedAmount = useMemo(() => {
-    if (!walletBalance) {
-      return null;
-    }
-
-    return formatEthBalance(walletBalance.formatted);
-  }, [walletBalance]);
-
-  const isWalletEmpty = useMemo(() => {
-    if (isWalletBalanceLoading) {
-      return false;
-    }
-
-    if (formattedAmount === null) {
-      return true;
-    }
-
-    return false;
-  }, [formattedAmount, isWalletBalanceLoading]);
+  // const formattedAmount = useMemo(() => {
+  //   if (!walletBalance) {
+  //     return null;
+  //   }
+  //
+  //   return formatEthBalance(walletBalance.formatted);
+  // }, [walletBalance]);
+  //
+  // const isWalletEmpty = useMemo(() => {
+  //   if (isWalletBalanceLoading) {
+  //     return false;
+  //   }
+  //
+  //   if (formattedAmount === null) {
+  //     return true;
+  //   }
+  //
+  //   return false;
+  // }, [formattedAmount, isWalletBalanceLoading]);
 
   const handleCopyAddress = () => {
     toast("Address was copied");
   };
 
-  const handleShowMainButton = () => {};
+  const handleShowMainButton = () => {
+    navigate('/create-lobby')
+  };
 
   useEffect(() => {
-    if (!TgWebApp) {
-      return;
-    }
-
-    const tgButtons = new TgButtons(TgWebApp);
-
-    tgButtons.showMainButton(handleShowMainButton, {});
-  }, []);
+    $doLoadWebApp();
+   if(TgButtons){
+     TgButtons.hideBackButton()
+     TgButtons.showMainButton(handleShowMainButton, { color: "#2ED3B7", text: "Create DumBattle", text_color: "#000000", is_active: true, is_visible: true });
+   }
+  }, [WebApp]);
 
   return (
     <div
-      className="fixed w-full bottom-[60px] left-0"
+      className="fixed w-full bottom-[20px] left-0"
       onClick={() => handleCopyAddress()}
     >
       <Container>
@@ -75,8 +81,8 @@ const WalletBalance = () => {
           className={cn(
             "w-full flex items-center justify-between rounded-[24px] border-spacing-1 px-3 py-2 bg-gn-950",
             {
-              "border-4 border-teal-400": isWalletEmpty,
-              "border-2 border-gn-800": !isWalletEmpty,
+              "border-4 border-teal-400": true,
+              "border-2 border-gn-800": !true
             }
           )}
         >
@@ -87,7 +93,7 @@ const WalletBalance = () => {
             </span>
             <span className="font-semibold text-gn-500">My balance</span>
             <span className="text-white font-semibold">
-              {formattedAmount} ETH
+              {0.008} ETH
             </span>
           </div>
         </div>

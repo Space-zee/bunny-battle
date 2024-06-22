@@ -1,12 +1,13 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { UserEntity } from './user.entity';
 
 @Entity('Room')
 export class RoomEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'id' })
   public id: number;
 
-  @Column({ name: 'telegramUserId', nullable: false, type: 'bigint' })
-  public telegramUserId: number;
+  @Column({ name: 'userId', nullable: false })
+  public userId: number;
 
   @Column({ name: 'roomId', length: 255, nullable: false })
   public roomId: string;
@@ -28,4 +29,7 @@ export class RoomEntity extends BaseEntity {
     default: () => 'CURRENT_TIMESTAMP(3)',
   })
   public createdAt: Date;
+
+  @ManyToOne(() => UserEntity, (user) => user.rooms)
+  user: UserEntity;
 }

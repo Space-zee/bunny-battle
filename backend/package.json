@@ -36,12 +36,14 @@
     "ethers": "^5.5.2",
     "mysql2": "^3.10.1",
     "nestjs-telegraf": "^2.7.0",
+    "pm2": "^5.4.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "snarkjs": "^0.7.4",
     "socket.io": "^4.7.5",
     "telegraf": "^4.14.0",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.17",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

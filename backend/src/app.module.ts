@@ -36,7 +36,7 @@ import { ApiModule } from './modules/api/api.module';
     }),
     TelegramModule,
     GatewayModule,
-    //ApiModule,
+    ApiModule,
   ],
 })
 export class AppModule {}

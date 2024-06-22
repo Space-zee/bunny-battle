@@ -16,6 +16,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoomEntity } from '../../../db/entities/room.entity';
+import { v4 as uuidv4 } from 'uuid';
+import { RoomStatus } from '../api/enums';
 
 @Injectable()
 @WebSocketGateway({ cors: { origin: '*' } })
@@ -29,6 +31,8 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     private readonly roomRepository: Repository<RoomEntity>,
     @InjectRepository(WalletEntity)
     private readonly walletRepository: Repository<WalletEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   @SubscribeMessage('chat') // subscribe to chat event messages
@@ -41,49 +45,47 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
   }
 
   @SubscribeMessage('createLobby')
-  public async handleCreateLobby(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() body: { telegramUserId: number; bet: string },
-  ) {
+  public async handleCreateLobby(client: Socket, body: { telegramUserId: number; bet: string }) {
     const room = await this.roomRepository.findOne({
       where: { roomId: client.id },
+      relations: { user: true },
+    });
+    const user = await this.userRepository.findOne({
+      where: { telegramUserId: body.telegramUserId },
     });
     if (!room) {
       const roomEntity = this.roomRepository.create({
-        roomId: client.id,
-        status: 'active',
-        telegramUserId: body.telegramUserId,
+        roomId: uuidv4(),
+        status: RoomStatus.Active,
+        userId: user.id,
         bet: body.bet,
       });
       await this.roomRepository.save(roomEntity);
 
       client.join(roomEntity.roomId);
-      this.server
-        .to(roomEntity.roomId)
-        .emit('roomCreated', { room, message: `Room ${room} has been created.` });
-      console.log(`Room ${room} created and ${client.id} joined`);
+
+      //this.server.to(roomEntity.roomId).emit('roomCreated', { roomId: roomEntity.roomId });
+      this.server.emit(`roomCreated:${body.telegramUserId}`, { roomId: roomEntity.roomId });
+      console.log(`Room created and ${client.id} joined`);
     } else {
       client.emit('error', { message: `Room ${room} already exists.` });
     }
   }
 
   @SubscribeMessage('joinRoom')
-  public handleJoinRoom(client: Socket, payload: { room: string; username: string }) {
-    console.log(`${payload.username} joined room: ${payload.room}`);
-    client.join(payload.room);
+  public handleJoinRoom(client: Socket, body: { roomId: string; telegramUserId: number }) {
+    console.log(`${body.telegramUserId} joined room: ${body.roomId}`);
+    client.join(body.roomId);
 
-    this.server.to(payload.room).emit('chat', {
-      author: 'System',
-      body: ` has joined the room.`,
-    });
+    this.server.emit(`readyForBattle:${body.roomId}`);
   }
 
-  handleConnection(socket: Socket) {
+  public handleConnection(socket: Socket): void {
     this.logger.log(`Socket connected: ${socket.id}`);
   }
 
   // it will be handled when a client disconnects from the server
-  handleDisconnect(socket: Socket) {
+  public handleDisconnect(socket: Socket): void {
     this.logger.log(`Socket disconnected: ${socket.id}`);
   }
 }

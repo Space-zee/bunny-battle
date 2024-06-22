@@ -13,6 +13,10 @@ import {
 } from "@/validation-schemas/create-lobby-validation.schema";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import { io } from "socket.io-client";
+import TgWebApp from "@twa-dev/sdk";
+import { useNavigate } from "react-router-dom";
+import { useAtom, useSetAtom } from "jotai";
+import * as coreModels from '../../core/models'
 
 interface LabelProps {
   children: ReactNode;
@@ -71,25 +75,69 @@ const CreateLobby = () => {
   });
 
   const ethValue = form.watch("value");
-
+  const [WebApp] = useAtom(coreModels.$webApp);
+  const [TgButtons] = useAtom(coreModels.$tgButtons);
+  const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
   const socket = io("http://localhost:3000", { autoConnect: false });
+  const navigate = useNavigate();
 
-  const createLobby = () => {
-    socket.connect();
-    socket.emit("createLobby",  { telegramUserId: 1, bet: '1'  });
+  const onBack = () => {
+    TgButtons?.hideMainButton();
+    navigate("/");
   };
 
-  useEffect(() => {// connect to socket
+  useEffect(() => {
+    $doLoadWebApp();
+    if(TgButtons){
+      TgButtons.showMainButton(createLobby, {
+        color: "#2ED3B7",
+        text: "Confirm",
+        text_color: "#000000",
+        is_active: !!ethValue,
+        is_visible: true
+      });
+    }
+  }, [WebApp]);
 
+  useEffect(() => {// connect to socket
+    socket.connect();
     socket.on("disconnect", () => { // fire when socked is disconnected
       console.log("Socket disconnected");
+    });
+    socket.on(`roomCreated:${TgWebApp.initDataUnsafe.user!.id}`, (body: any) => { // fire when socked is disconnected
+      console.log("roomCreated", body);
+      navigate(`/lobby/${body.roomId}`);
     });
 
     // remove all event listeners
     return () => {
       socket.off("disconnect");
+      socket.off("connect");
+      socket.off(`roomCreated:${TgWebApp.initDataUnsafe.user!.id}`);
     };
   }, []);
+
+  const createLobby = () => {
+    socket.connect();
+    socket.emit("createLobby", { bet: ethValue, telegramUserId: TgWebApp.initDataUnsafe.user!.id });
+  };
+
+  useEffect(() => {
+
+    TgButtons?.showBackButton(onBack)
+    TgButtons?.showMainButton(createLobby, {
+      color: "#2ED3B7",
+      text: "Confirm",
+      text_color: "#000000",
+      is_active: !!ethValue,
+      is_visible: true
+    });
+  }, [ethValue]);
+
+
+
+  const handleSubmit = () => {
+  };
 
   return (
     <>
@@ -127,6 +175,9 @@ const CreateLobby = () => {
               />
             </div>
             <div className="flex flex-col w-full gap-2">
+              <button onClick={createLobby}>
+                Create
+              </button>
               <Label>Or use presset</Label>
               <div className="flex gap-1 w-full">
                 {bets.map((bet) => (
@@ -157,9 +208,6 @@ const CreateLobby = () => {
             </div>
           </form>
         </Form>
-        <button onClick={createLobby}>
-          Create Lobby
-        </button>
       </Container>
       <WalletBalance />
     </>
