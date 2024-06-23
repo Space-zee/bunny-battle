@@ -11,12 +11,20 @@ import { apiBaseUrl } from "@/constants/api.constant.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IJoinRoomRes, IRabbitsSetReq, IUserMoveRes, IWinnerRes } from "@/interfaces/ws.ts";
 import { useAtom, useSetAtom } from "jotai";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  IJoinRoomRes,
+  IRabbitsSetReq,
+  IUserMoveRes,
+  IWinnerRes,
+} from "@/interfaces/ws.ts";
+import { useAtom, useSetAtom } from "jotai/index";
 import { LogoIcon } from "@/assets/logo.icon";
 import * as coreModels from "@/core/models";
 import { Coordinates } from "@/core/models/game.types";
+import { toast } from "sonner";
 
 const Game = () => {
-
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [, , roomId] = pathname.split("/");
@@ -87,6 +95,8 @@ const Game = () => {
     socket.on(
       `serverUserMove:${roomId}`,
       ({ lastMove, telegramUserId }: IUserMoveRes) => {
+        toast("Move transaction confirmed");
+
         const currentUserTelegramId = WebApp.initDataUnsafe.user?.id;
 
         if (currentUserTelegramId === undefined) {
@@ -95,6 +105,8 @@ const Game = () => {
 
         // if user made this move
         if (currentUserTelegramId === telegramUserId) {
+          toast("Move transaction confirmed");
+
           // then we swap turns and set "current" move as user last move
           const lastUserMove = { ...gameState.userMove } as Coordinates;
           const userMoves = [...gameState.userMoves];
@@ -112,18 +124,23 @@ const Game = () => {
         } else {
           // if opponent make their move that means opponent verified our last move, ie if we hit him in our last move
           const userMoves = [...gameState.userMoves];
+          const enemyMoves = [...gameState.enemyMoves];
+
+          if (lastMove) {
+            enemyMoves.push(lastMove);
+          }
 
           // if it's first move - skip
           if (userMoves.length === 0 || lastMove === null) {
             return;
           } else {
             const lastUserMove = {
-              ...userMoves[gameState.userMoves.length - 1]
+              ...userMoves[gameState.userMoves.length - 1],
             };
-            lastUserMove.isHit = lastMove;
+            lastUserMove.isHit = lastMove.isHit;
             userMoves[gameState.userMoves.length - 1] = lastUserMove;
             // save move result
-            setGameState(prevState => ({ ...prevState,  userMoves }));
+            setGameState(prevState => ({ ...prevState,  userMoves, enemyMoves }));
           }
         }
       }
