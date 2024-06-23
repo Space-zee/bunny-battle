@@ -11,8 +11,8 @@ import { useLocation } from "react-router-dom";
 import * as coreModels from "../../core/models";
 
 const GameStarted = () => {
-  const TgButtons = useAtomValue(coreModels.$tgButtons);
-  const WebApp = useAtomValue(coreModels.$webApp);
+  const [WebApp] = useAtom(coreModels.$webApp);
+  const [TgButtons] = useAtom(coreModels.$tgButtons);
   const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
 
   const [gameState, setGameState] = useAtom($doGameState);
@@ -36,11 +36,13 @@ const GameStarted = () => {
       return;
     }
 
-    setGameState({ ...gameState, userMove: coordinates });
+    setGameState(prevState => ({ ...prevState, userMove: coordinates }));
   };
 
   const handleConfirmMove = () => {
-    if (!gameState.userMove || !WebApp) {
+    console.log('handleConfirmMove')
+    console.log('gameState', gameState)
+    if (!gameState.userMove) {
       return;
     }
 

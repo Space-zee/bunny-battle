@@ -119,11 +119,10 @@ const CreateLobby = () => {
     socket.on(`roomCreated:${WebApp?.initDataUnsafe.user!.id}`, (body: any) => {
       // fire when socked is disconnected
       console.log("roomCreated", body);
-      setGameState({
-        ...gameState,
+      setGameState(prevState => ({ ...prevState,
         // isUserRoom: true,
         isUserTurn: true,
-      });
+      }));
       navigate(`/game/${body.roomId}`);
     });
 

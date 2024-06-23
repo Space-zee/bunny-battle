@@ -9,9 +9,6 @@ import { GameStarted } from "../game/game-started";
 import { io } from "socket.io-client";
 import { apiBaseUrl } from "@/constants/api.constant.ts";
 import { useLocation, useNavigate } from "react-router-dom";
-import { IJoinRoomRes, IRabbitsSetReq, IUserMoveRes, IWinnerRes } from "@/interfaces/ws.ts";
-import { useAtom, useSetAtom } from "jotai";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   IJoinRoomRes,
   IRabbitsSetReq,
@@ -99,6 +96,8 @@ const Game = () => {
 
         const currentUserTelegramId = WebApp.initDataUnsafe.user?.id;
 
+        console.log('lastMove', lastMove)
+        console.log('currentUserTelegramId', currentUserTelegramId)
         if (currentUserTelegramId === undefined) {
           return;
         }
@@ -140,7 +139,7 @@ const Game = () => {
             lastUserMove.isHit = lastMove.isHit;
             userMoves[gameState.userMoves.length - 1] = lastUserMove;
             // save move result
-            setGameState(prevState => ({ ...prevState,  userMoves, enemyMoves }));
+            setGameState(prevState => ({ ...prevState,  userMoves, enemyMoves, isUserTurn: true }));
           }
         }
       }

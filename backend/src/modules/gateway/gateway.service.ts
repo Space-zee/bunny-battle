@@ -180,6 +180,8 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     //contract call to move
     //await tx
     //contract call getGame. If winner, call
+
+    console.log('USERMOVE', body);
     const userEntity = await this.userRepository.findOne({
       where: { telegramUserId: body.telegramUserId },
       relations: { wallets: true },
