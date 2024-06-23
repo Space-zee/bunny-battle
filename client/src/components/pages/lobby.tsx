@@ -5,6 +5,12 @@ import { WalletBalance } from "../general/wallet-balance";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { PageTitle } from "../general/page-title";
+import { RefreshIcon } from "@/assets/refresh.icon";
+import { httpClient } from "@/core/httpClient";
+import { IGetActiveRoomsRes } from "@/interfaces/api.interface";
+import { apiPaths } from "@/core/httpClient/apiPaths";
+import { useAtom } from "jotai";
+import { $doGlobalState } from "@/core/models/global";
 
 interface Tab {
   name: string;
@@ -47,7 +53,21 @@ const Tabs = () => {
 const Lobby = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  console.log("pathname", pathname);
+
+  const [globalState, setGlobalState] = useAtom($doGlobalState);
+
+  const getRooms = async () => {
+    const res = await httpClient.get<IGetActiveRoomsRes[]>(
+      apiPaths.getActiveRooms()
+    );
+    if (res.data) {
+      setGlobalState({ ...globalState, activeRooms: res.data });
+    }
+  };
+
+  useEffect(() => {
+    getRooms();
+  }, []);
 
   useEffect(() => {
     if (pathname === "/lobby") {
@@ -60,7 +80,12 @@ const Lobby = () => {
       <Container>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-6 pt-9">
-            <PageTitle>Combat lobby</PageTitle>
+            <div className="flex w-full cursor-pointer items-center">
+              <PageTitle onClick={getRooms} className="cursor-pointer">
+                <span>Combat lobby</span>
+                <RefreshIcon />
+              </PageTitle>
+            </div>
             <Tabs />
           </div>
           <Outlet />

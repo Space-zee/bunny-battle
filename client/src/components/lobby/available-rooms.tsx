@@ -1,27 +1,18 @@
 import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
-import { IGetActiveRoomsRes } from "@/interfaces/api.interface";
-import { httpClient } from "@/core/httpClient";
-import { apiPaths } from "@/core/httpClient/apiPaths";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { apiBaseUrl } from "@/constants/api.constant";
 import TgWebApp from "@twa-dev/sdk";
+import { useAtomValue, useSetAtom } from "jotai";
+import { $doGlobalState } from "@/core/models/global";
+import { $doGameState, initialGameState } from "@/core/models/game";
 
 const AvailableRooms = () => {
-  const [rooms, setRooms] = useState<IGetActiveRoomsRes[]>([]);
+  const globalState = useAtomValue($doGlobalState);
+  const setGameState = useSetAtom($doGameState);
   const navigate = useNavigate();
   const socket = io(apiBaseUrl); // Replace with your server URL
-
-  useEffect(() => {
-    const call = async () => {
-      const res = await httpClient.get<IGetActiveRoomsRes[]>(apiPaths.getActiveRooms());
-        if(res.data) {
-          setRooms(res.data);
-        }
-    };
-    call();
-  }, []);
 
   useEffect(() => {
     // connect to socket
@@ -31,7 +22,7 @@ const AvailableRooms = () => {
       console.log("Socket disconnected");
     });
     socket.on(
-      `roomCreated:${TgWebApp.initDataUnsafe.user!.id}`,
+      `roomCreated:${TgWebApp.initDataUnsafe.user?.id}`,
       (body: any) => {
         // fire when socked is disconnected
         console.log("roomCreated", body);
@@ -49,8 +40,13 @@ const AvailableRooms = () => {
 
   const onSelectRoom = (roomId: string) => {
     socket.emit('joinRoom', { roomId, telegramUserId: TgWebApp?.initDataUnsafe.user?.id });
+    setGameState(initialGameState);
     navigate(`/game/${roomId}?isReady=true`);
-  }
+  };
+
+  const isFightButtonDisabled = (roomUsername: string) => {
+    return TgWebApp.initDataUnsafe.user?.username === roomUsername;
+  };
 
   return (
     <div className="flex flex-col gap-2 pb-[20px]">
@@ -59,10 +55,18 @@ const AvailableRooms = () => {
           key={item.roomId}
           className="flex items-center justify-between bg-gn-900 rounded-xl p-2"
         >
-          <span className="font-medium text-base text-white">@{item.username}</span>
+          <span className="font-medium text-base text-white">
+            @{item.username}
+          </span>
           <div className="flex items-center gap-3">
             <span className="text-base text-white">⚔ {item.bet}</span>
-            <Button className="bg-white text-black" onClick={() => onSelectRoom(item.roomId)}>Fight</Button>
+            <Button
+              className="bg-white text-black"
+              onClick={() => onSelectRoom(item.roomId)}
+              disabled={isFightButtonDisabled(item.username)}
+            >
+              Fight
+            </Button>
           </div>
         </div>
       ))}

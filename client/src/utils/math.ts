@@ -19,3 +19,12 @@ export const compareCoordinates = (
 ) => {
   return coordinates1.x === coordinates2.x && coordinates1.y === coordinates2.y;
 };
+
+export const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  const paddedMinutes = minutes.toString().padStart(1, "0");
+  const paddedSeconds = remainingSeconds.toString().padStart(2, "0");
+
+  return `${paddedMinutes}:${paddedSeconds}`;
+};
