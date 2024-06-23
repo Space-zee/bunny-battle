@@ -18,19 +18,19 @@ const PrepareRabits = () => {
     }
 
     if (!gameState.userRabbitsPositions) {
-      setGameState({ ...gameState, userRabbitsPositions: [cooridnates] });
+      setGameState(prevState => ({ ...prevState, userRabbitsPositions: [cooridnates] }));
     } else if (gameState.userRabbitsPositions.length === 1) {
       const userRabbitsPositions = [
         ...gameState.userRabbitsPositions,
         cooridnates
       ];
-      setGameState({ ...gameState, userRabbitsPositions });
+      setGameState(prevState => ({ ...prevState,  userRabbitsPositions }));
     } else {
       const userRabbitsPositions = [...gameState.userRabbitsPositions];
       userRabbitsPositions.shift();
       userRabbitsPositions.push(cooridnates);
 
-      setGameState({ ...gameState, userRabbitsPositions });
+      setGameState(prevState => ({ ...prevState,  userRabbitsPositions }));
     }
   };
 

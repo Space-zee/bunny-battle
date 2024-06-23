@@ -1,3 +1,5 @@
+import { Move } from "@/core/models/game.types";
+
 export interface ICreateLobbyReq {
   telegramUserId: number;
   bet: string;
@@ -16,7 +18,7 @@ export interface IJoinRoomReq {
 export interface IJoinRoomRes {
   bet: string;
   roomId: string;
-  username:string;
+  username: string;
   opponentName: string;
   rooCreator: number;
 }
@@ -39,7 +41,7 @@ export interface IUserMoveReq {
 
 export interface IUserMoveRes {
   telegramUserId: number; // user who made move
-  lastMove: boolean | null; // so this is isHit by other user
+  lastMove: Move; // so this is isHit by other user
 }
 
 export interface IWinnerRes {

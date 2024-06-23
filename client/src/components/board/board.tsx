@@ -23,7 +23,7 @@ const Board = ({ onClick }: BoardProps) => {
       return;
     }
 
-    if (!gameState.isUserTurn) {
+    if (gameState.isUserTurn) {
       return (
         <div className="flex items-center justify-center font-bold text-xs">
           <span className="text-gn-500">{gameState.enemyUsername}</span>
@@ -34,7 +34,7 @@ const Board = ({ onClick }: BoardProps) => {
 
     return (
       <div className="flex items-center justify-center font-bold text-xs">
-        <span className="text-gn-500">Your</span>
+        <span className="text-gn-500">Your </span>
         <span className="text-gn-700">board</span>
       </div>
     );

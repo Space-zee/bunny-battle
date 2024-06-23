@@ -4,20 +4,24 @@ import { Container } from "../general/container";
 import { PrepareRabits } from "../game/prepare-rabits";
 import TurnInfo from "../game/turn-info";
 import { useEffect, useMemo } from "react";
-import { useAtom } from "jotai";
 import { $doGameState } from "@/core/models/game";
 import { GameStarted } from "../game/game-started";
 import { io } from "socket.io-client";
 import { apiBaseUrl } from "@/constants/api.constant.ts";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { IJoinRoomRes, IRabbitsSetReq, IUserMoveRes, IWinnerRes } from "@/interfaces/ws.ts";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  IJoinRoomRes,
+  IRabbitsSetReq,
+  IUserMoveRes,
+  IWinnerRes,
+} from "@/interfaces/ws.ts";
 import { useAtom, useSetAtom } from "jotai/index";
 import { LogoIcon } from "@/assets/logo.icon";
 import * as coreModels from "@/core/models";
 import { Coordinates } from "@/core/models/game.types";
+import { toast } from "sonner";
 
 const Game = () => {
-
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [, , roomId] = pathname.split("/");
@@ -62,40 +66,46 @@ const Game = () => {
     });
 
     // fire when socked is disconnected
-    setGameState({ ...gameState });
     socket.on(`readyForBattle:${roomId}`, (body: IJoinRoomRes) => { // fire when socked is disconnected
       const prizePool = Number(body.bet) + Number(body.bet) * 0.99;
       const enemyUsername = WebApp?.initDataUnsafe.user?.username === body.username ? body.opponentName : body.username;
-      setGameState({ ...gameState, enemyUsername, prizePool });
+      setGameState(prevState => ({ ...prevState, enemyUsername, prizePool }));
     });
 
-    socket.on(`serverRabbitSet:${roomId}:${WebApp?.initDataUnsafe.user?.id}`, (body: { contractRoomId: number }) => {
+    socket.on(`serverRabbitSet:${roomId}:${WebApp?.initDataUnsafe.user?.id}`, (body: {
+      contractRoomId: number,
+      isRoomCreator: boolean
+    }) => {
       console.log("body", body);
-      //TODO: Toast.  Rabbits set transaction confirmed
-      setGameState({ ...gameState, gameId: body.contractRoomId });
+      TgButtons.mainButton.hideProgress()
+      setGameState(prevState => ({
+        ...prevState,
+        gameId: body.contractRoomId,
+        isUserRoom: body.isRoomCreator
+      }));
     });
 
-    socket.on(`serverUserMove:${roomId}`, (body: any) => {
-      console.log("body", body);
-      //TODO: Toast.  Move transaction confirmed
-      //setGameState({ ...gameState, gameId: body.contractRoomId });
-    });
-
-    socket.on(`gameStarted:${roomId}`, (body: { contractRoomId: number }) => {
-      setGameState({ ...gameState, gameId: body.contractRoomId });
+    socket.on(`gameStarted:${roomId}`, () => {
+      setGameState(prevState => ({ ...prevState, stage: "gameStarted" }));
     });
 
     socket.on(
       `serverUserMove:${roomId}`,
       ({ lastMove, telegramUserId }: IUserMoveRes) => {
+        toast("Move transaction confirmed");
+
         const currentUserTelegramId = WebApp.initDataUnsafe.user?.id;
 
+        console.log('lastMove', lastMove)
+        console.log('currentUserTelegramId', currentUserTelegramId)
         if (currentUserTelegramId === undefined) {
           return;
         }
 
         // if user made this move
         if (currentUserTelegramId === telegramUserId) {
+          toast("Move transaction confirmed");
+
           // then we swap turns and set "current" move as user last move
           const lastUserMove = { ...gameState.userMove } as Coordinates;
           const userMoves = [...gameState.userMoves];
@@ -104,34 +114,39 @@ const Game = () => {
             userMoves.push({ coordinates: lastUserMove, isHit: false });
           }
 
-          setGameState({
+          setGameState(prevState => ({ ...prevState,
             ...gameState,
             isUserTurn: false,
             userMove: null,
             userMoves
-          });
+          }));
         } else {
           // if opponent make their move that means opponent verified our last move, ie if we hit him in our last move
           const userMoves = [...gameState.userMoves];
+          const enemyMoves = [...gameState.enemyMoves];
+
+          if (lastMove) {
+            enemyMoves.push(lastMove);
+          }
 
           // if it's first move - skip
           if (userMoves.length === 0 || lastMove === null) {
             return;
           } else {
             const lastUserMove = {
-              ...userMoves[gameState.userMoves.length - 1]
+              ...userMoves[gameState.userMoves.length - 1],
             };
-            lastUserMove.isHit = lastMove;
+            lastUserMove.isHit = lastMove.isHit;
             userMoves[gameState.userMoves.length - 1] = lastUserMove;
             // save move result
-            setGameState({ ...gameState, userMoves });
+            setGameState(prevState => ({ ...prevState,  userMoves, enemyMoves, isUserTurn: true }));
           }
         }
       }
     );
 
     socket.on(`winner:${roomId}`, ({ address }: IWinnerRes) => {
-      setGameState({ ...gameState, winner: address });
+      setGameState(prevState => ({ ...prevState,  winner: address }));
       navigate(`/game-result/${roomId}`);
     });
 
@@ -174,6 +189,7 @@ const Game = () => {
     };
     socket.connect();
     socket.emit("clientRabbitsSet", req);
+    TgButtons.mainButton.showProgress()
   };
 
   return (

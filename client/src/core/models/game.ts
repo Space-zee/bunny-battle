@@ -16,6 +16,7 @@ export const initialGameState: GameState = {
     // { x: 1, y: 2 },
     // { x: 0, y: 1 },
   ],
+  isUserRoom: false,
   userMove: null,
   enemyMoves: [],
   userMoves: [

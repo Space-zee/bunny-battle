@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { apiBaseUrl } from "@/constants/api.constant";
 import TgWebApp from "@twa-dev/sdk";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { $doGlobalState } from "@/core/models/global";
 import { $doGameState, initialGameState } from "@/core/models/game";
 
 const AvailableRooms = () => {
   const globalState = useAtomValue($doGlobalState);
-  const setGameState = useSetAtom($doGameState);
+  const [,setGameState] = useAtom($doGameState);
   const navigate = useNavigate();
   const socket = io(apiBaseUrl); // Replace with your server URL
 
@@ -50,7 +50,7 @@ const AvailableRooms = () => {
 
   return (
     <div className="flex flex-col gap-2 pb-[20px]">
-      {rooms.map((item) => (
+      {globalState.activeRooms.map((item) => (
         <div
           key={item.roomId}
           className="flex items-center justify-between bg-gn-900 rounded-xl p-2"
