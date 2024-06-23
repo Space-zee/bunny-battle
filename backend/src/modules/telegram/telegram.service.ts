@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RoomEntity } from '../../../db/entities/room.entity';
 import { RoomStatus } from '../api/enums';
+import { uiUrl } from '../../shared/constants/uiUrl.constant';
 
 @Update()
 @Injectable()
@@ -45,7 +46,7 @@ export class TelegramService {
               {
                 text: `Open App`,
                 web_app: {
-                  url: 'https://127.0.0.1:5173/',
+                  url: uiUrl,
                 },
               },
             ],
@@ -102,7 +103,7 @@ export class TelegramService {
             {
               text: `Open App`,
               web_app: {
-                url: 'https://127.0.0.1:5173/',
+                url: uiUrl,
               },
             },
           ],

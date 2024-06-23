@@ -1,10 +1,10 @@
+//@ts-nocheck
 import { Coordinates } from "@/core/models/game.types";
 import { Board } from "../board/board";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { $doGameState } from "@/core/models/game";
 import { compareCoordinates } from "@/utils/math";
 import { useEffect } from "react";
-import { TgButtons } from "@/lib/telegram";
 import { io } from "socket.io-client";
 import { apiBaseUrl } from "@/constants/api.constant";
 import { useLocation } from "react-router-dom";

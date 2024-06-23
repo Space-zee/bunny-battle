@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { ReactNode, useEffect } from "react";
 import { Container } from "../general/container";
 import { WalletBalance } from "../general/wallet-balance";

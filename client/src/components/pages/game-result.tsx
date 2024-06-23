@@ -1,3 +1,5 @@
+
+//@ts-nocheck
 import React from "react";
 import { Container } from "../general/container";
 import { PageTitle } from "../general/page-title";

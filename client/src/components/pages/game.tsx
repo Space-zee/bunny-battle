@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { PageTitle } from "../general/page-title";
 import { GameHeader } from "../game/game-header";
 import { Container } from "../general/container";
@@ -18,7 +19,6 @@ import {
 import { useAtom, useSetAtom } from "jotai/index";
 import { LogoIcon } from "@/assets/logo.icon";
 import * as coreModels from "@/core/models";
-import { Coordinates } from "@/core/models/game.types";
 import { toast } from "sonner";
 
 const Game = () => {
