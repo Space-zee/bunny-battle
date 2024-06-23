@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { useAtom, useSetAtom } from "jotai";
 import * as coreModels from "../../core/models";
 import { apiBaseUrl } from "@/constants/api.constant";
+import { $doGameState, initialGameState } from "@/core/models/game";
 
 interface LabelProps {
   children: ReactNode;
@@ -82,6 +83,7 @@ const CreateLobby = () => {
   });
 
   const ethValue = form.watch("value");
+  const [gameState, setGameState] = useAtom($doGameState);
   const [WebApp] = useAtom(coreModels.$webApp);
   const [TgButtons] = useAtom(coreModels.$tgButtons);
   const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
@@ -109,19 +111,21 @@ const CreateLobby = () => {
   useEffect(() => {
     // connect to socket
     socket.connect();
-    console.log('useEffect')
+    console.log("useEffect");
     socket.on("disconnect", () => {
       // fire when socked is disconnected
       console.log("Socket disconnected");
     });
-    socket.on(
-      `roomCreated:${WebApp?.initDataUnsafe.user!.id}`,
-      (body: any) => {
-        // fire when socked is disconnected
-        console.log("roomCreated", body);
-        navigate(`/game/${body.roomId}`);
-      }
-    );
+    socket.on(`roomCreated:${WebApp?.initDataUnsafe.user!.id}`, (body: any) => {
+      // fire when socked is disconnected
+      console.log("roomCreated", body);
+      setGameState({
+        ...gameState,
+        // isUserRoom: true,
+        isUserTurn: true,
+      });
+      navigate(`/game/${body.roomId}`);
+    });
 
     // remove all event listeners
     return () => {

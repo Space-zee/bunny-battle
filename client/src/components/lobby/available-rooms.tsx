@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { apiBaseUrl } from "@/constants/api.constant";
 import TgWebApp from "@twa-dev/sdk";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { $doGlobalState } from "@/core/models/global";
+import { $doGameState, initialGameState } from "@/core/models/game";
 
 const AvailableRooms = () => {
   const globalState = useAtomValue($doGlobalState);
+  const setGameState = useSetAtom($doGameState);
   const navigate = useNavigate();
   const socket = io(apiBaseUrl); // Replace with your server URL
 
@@ -37,6 +39,7 @@ const AvailableRooms = () => {
   }, []);
 
   const onSelectRoom = (roomId: string) => {
+    setGameState(initialGameState);
     socket.emit("joinRoom", { roomId, telegramUserId: 1 });
     navigate(`/game/${roomId}?isReady=true`);
   };

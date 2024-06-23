@@ -35,6 +35,15 @@ export interface IUserMoveReq {
   roomId: string;
 }
 
+export interface IUserMoveRes {
+  telegramUserId: number; // user who made move
+  lastMove: boolean | null; // so this is isHit by other user
+}
+
+export interface IWinnerRes {
+  address: string;
+}
+
 export interface ICoordinates {
   x: number;
   y: string;
