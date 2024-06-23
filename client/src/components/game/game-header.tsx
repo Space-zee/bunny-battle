@@ -4,7 +4,7 @@ import { RoomPrize } from "../create-room/room-prize";
 
 import { useAtomValue } from "jotai";
 
-const GameHeader = ({ opponentName, name, bet }: { name: string, opponentName: string, bet: string }) => {
+const GameHeader = ({ opponentName, name, prizePool }: { name: string | null, opponentName: string | null, prizePool: string }) => {
   const gameState = useAtomValue($doGameState);
 
   return (
@@ -14,7 +14,7 @@ const GameHeader = ({ opponentName, name, bet }: { name: string, opponentName: s
         <span className="text-[32px]">🤔</span>
         <RoomParticipant isActive={!gameState.isUserTurn} name={`@${opponentName}`} />
       </div>
-      <RoomPrize value={bet} />
+      <RoomPrize value={prizePool} />
     </div>
   );
 };

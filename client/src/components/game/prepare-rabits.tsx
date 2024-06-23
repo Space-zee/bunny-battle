@@ -3,6 +3,7 @@ import { Board } from "../board/board";
 import { $doGameState } from "@/core/models/game";
 import { Coordinates } from "@/core/models/game.types";
 import { compareCoordinates } from "@/utils/math";
+
 const PrepareRabits = () => {
   const [gameState, setGameState] = useAtom($doGameState);
 
@@ -21,7 +22,7 @@ const PrepareRabits = () => {
     } else if (gameState.userRabbitsPositions.length === 1) {
       const userRabbitsPositions = [
         ...gameState.userRabbitsPositions,
-        cooridnates,
+        cooridnates
       ];
       setGameState({ ...gameState, userRabbitsPositions });
     } else {

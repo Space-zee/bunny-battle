@@ -48,7 +48,7 @@ const AvailableRooms = () => {
   }, []);
 
   const onSelectRoom = (roomId: string) => {
-    socket.emit('joinRoom', { roomId, telegramUserId: 1 });
+    socket.emit('joinRoom', { roomId, telegramUserId: TgWebApp?.initDataUnsafe.user?.id });
     navigate(`/game/${roomId}?isReady=true`);
   }
 

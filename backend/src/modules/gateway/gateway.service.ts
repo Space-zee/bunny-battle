@@ -25,10 +25,12 @@ import {
 import { getBattleshipContract } from '../../shared/utils/getBattleshipContract';
 import fs from 'fs';
 import * as path from 'path';
+import { formatEther, parseEther } from 'ethers/lib/utils';
+import abi from '../../abi/bunBattle.json';
 
-const createWC = require('../../../assets/circom/create/create_js/witness_calculator.js');
-const createWasm = path.resolve(__dirname, '../../assets/circom/create/create_js/create.wasm');
-const createZkey = path.resolve(__dirname, '../../../assets/circom/create/create_0001.zkey');
+const createWC = require('../../../assets/circom/board/board_js/witness_calculator.js');
+const createWasm = path.resolve(__dirname, '../../../assets/circom/board/board_js/board.wasm');
+const createZkey = path.resolve(__dirname, '../../../assets/circom/board/board_0001.zkey');
 const moveWC = require('../../../assets/circom/move/move_js/witness_calculator.js');
 const moveWasm = path.resolve(__dirname, '../../../assets/circom/move/move_js/move.wasm');
 const moveZkey = path.resolve(__dirname, '../../../assets/circom/move/move_0001.zkey');
@@ -51,7 +53,9 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     private readonly roomRepository: Repository<RoomEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-  ) {}
+  ) {
+    this.provider = new ethers.providers.JsonRpcProvider(this.url);
+  }
 
   @SubscribeMessage('createLobby')
   public async handleCreateLobby(client: Socket, body: ICreateLobbyReq) {
@@ -80,7 +84,6 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     console.log(`${body.telegramUserId} joined room: ${body.roomId}`);
     const roomEntity = await this.roomRepository.findOne({
       where: { roomId: body.roomId },
-      relations: { user: true },
     });
     client.join(roomEntity.roomId);
 
@@ -89,10 +92,18 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     //1. Bet
     //2.Username both
     //3.RoomId
+    const user = await this.userRepository.findOne({
+      where: { telegramUserId: body.telegramUserId },
+    });
+    const opponent = await this.userRepository.findOne({
+      where: { id: roomEntity.userId },
+    });
     const res: IJoinRoomRes = {
       bet: roomEntity.bet,
       roomId: roomEntity.roomId,
-      opponentName: roomEntity.user.username,
+      username: user.username,
+      opponentName: opponent.username,
+      roomCreator: 1,
     };
     this.server.emit(`readyForBattle:${roomEntity.roomId}`, res);
   }
@@ -112,46 +123,55 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
       where: { telegramUserId: body.telegramUserId },
       relations: { wallets: true },
     });
-    const isRoomCreator = roomEntity.user.telegramUserId === body.telegramUserId;
+    const isRoomCreator = roomEntity.userId === userEntity.id;
     const rabbit1 = body.rabbits[0];
     const rabbit2 = body.rabbits[1];
     const playerCreate = {
       nonce: userEntity.nonce,
-      ships: [
+      bunnies: [
         [rabbit1.x, rabbit1.y],
         [rabbit2.x, rabbit2.y],
       ],
     };
     const proof = await this.genCreateProof(playerCreate);
+
     const signer = new ethers.Wallet(userEntity.wallets[0].privateKey, this.provider);
     const contract = getBattleshipContract(signer);
+    const contractInterface = new ethers.utils.Interface(abi);
 
     if (isRoomCreator) {
-      const createGame = await contract.createGame(proof.solidityProof, proof.inputs[0]);
-      await createGame.wait();
-      let contractRoomId = 0;
-      if (createGame.events) {
-        createGame.events.forEach((event) => {
-          console.log('Event:', event.event, event.args);
-          contractRoomId = event.args[0];
-        });
-      }
-      await this.roomRepository.update(roomEntity.id, { contractRoomId });
+      const createGame = await contract.createGame(
+        proof.solidityProof,
+        proof.inputs[0],
+        parseEther(roomEntity.bet),
+        {
+          value: parseEther(roomEntity.bet),
+        },
+      );
+      const receipt = await createGame.wait();
+      const contractRoomId = contractInterface.parseLog(receipt.events[1]).args[0].toString();
+      await this.roomRepository.update(roomEntity.id, { contractRoomId: Number(contractRoomId) });
     } else {
-      const createGame = await contract.joinGame(
+      const joinGame = await contract.joinGame(
         roomEntity.contractRoomId,
         proof.solidityProof,
         proof.inputs[0],
+        {
+          value: parseEther(roomEntity.bet),
+        },
       );
-      await createGame.wait();
+      await joinGame.wait();
     }
     const res = {
       contractRoomId: roomEntity.contractRoomId,
+      isRoomCreator,
     };
     this.server.emit(`serverRabbitSet:${body.roomId}:${body.telegramUserId}`, res);
 
-    if (isRoomCreator) {
-      this.server.emit(`gameStarted:${body.roomId}:${body.telegramUserId}`);
+    if (!isRoomCreator) {
+      this.server.emit(`gameStarted:${body.roomId}`, {
+        isRoomCreator,
+      });
     }
   }
 
@@ -190,7 +210,10 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
       );
       await move.wait();
 
-      this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`, { lastMove: null });
+      this.server.emit(`serverUserMove:${body.roomId}`, {
+        lastMove: null,
+        telegramUserId: body.telegramUserId,
+      });
     } else {
       const rabbit1 = body.userRabbits[0];
       const rabbit2 = body.userRabbits[1];
@@ -200,7 +223,7 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
         guess: [game.moves[game.moves.length - 1].x, game.moves[game.moves.length - 1].y],
         // Private Inputs:
         nonce: userEntity.nonce,
-        ships: [
+        bunnies: [
           [rabbit1.x, rabbit1.y],
           [rabbit2.x, rabbit2.y],
         ],
@@ -214,8 +237,9 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
         game.moves[game.moves.length - 1].isHit,
       );
       await move.wait();
-      this.server.emit(`serverUserMove:${body.roomId}:${body.telegramUserId}`, {
+      this.server.emit(`serverUserMove:${body.roomId}`, {
         lastMove: game.moves[game.moves.length - 1].isHit,
+        telegramUserId: body.telegramUserId,
       });
     }
   }

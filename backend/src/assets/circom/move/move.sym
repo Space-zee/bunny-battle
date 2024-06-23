@@ -3,10 +3,10 @@
 3,3,70,main.guess[0]
 4,4,70,main.guess[1]
 5,5,70,main.nonce
-6,6,70,main.ships[0][0]
-7,7,70,main.ships[0][1]
-8,8,70,main.ships[1][0]
-9,9,70,main.ships[1][1]
+6,6,70,main.bunnies[0][0]
+7,7,70,main.bunnies[0][1]
+8,8,70,main.bunnies[1][0]
+9,9,70,main.bunnies[1][1]
 10,10,69,main.poseidon.out
 11,-1,69,main.poseidon.inputs[0]
 12,-1,69,main.poseidon.inputs[1]
