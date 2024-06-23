@@ -4,7 +4,7 @@ export interface Coordinates {
 }
 
 export interface Move {
-  isHit: boolean;
+  isHit: boolean | null;
   coordinates: Coordinates;
 }
 
@@ -21,9 +21,9 @@ export interface GameState {
   prizePool: number;
   winner: string | null;
   enemyUsername: string | null;
-   isUserRoom: boolean; // One who create is true
+  isUserRoom: boolean; // One who create is true
   userRabbitsPositions: Coordinates[] | null;
-  userMove: Coordinates | null;
+  userMove: Move | null;
   userMoves: Move[];
   enemyMoves: Move[];
 }

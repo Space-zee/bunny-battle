@@ -37,57 +37,60 @@ const BoardCell = ({ index, onClick }: BoardCellProps) => {
     const moveByCoordinates = gameState.userMoves?.find((move) =>
       compareCoordinates(cellCoordinates, move.coordinates)
     );
+    const enemyMoveByCoordinates = gameState.enemyMoves?.find((move) =>
+      compareCoordinates(cellCoordinates, move.coordinates)
+    );
 
-    // Set rabbits
-    if (
-      (gameState.stage === "setRabits" ||
-        (gameState.stage === "gameStarted" && !gameState.isUserTurn)) &&
-      gameState.userRabbitsPositions &&
-      gameState.userRabbitsPositions.find((item) =>
-        compareCoordinates(item, cellCoordinates)
-      )
-    ) {
-      return "rabbit";
+    if (gameState.stage === "setRabits") {
+      if (
+        gameState.userRabbitsPositions?.find((item) =>
+          compareCoordinates(item, cellCoordinates)
+        )
+      ) {
+        return "rabbit";
+      }
+
+      return "default";
     }
 
-    if (moveByCoordinates) {
-      // Kill
-      if (moveByCoordinates?.isHit) {
+    if (gameState.isUserTurn) {
+      if (moveByCoordinates?.isHit === true) {
         return "killedRabbit";
       }
 
-      // Miss
-      if (!moveByCoordinates?.isHit) {
+      if (moveByCoordinates?.isHit === false) {
         return "miss";
       }
-    }
 
-    // User turn
-    if (gameState.isUserTurn && gameState.stage !== "setRabits") {
       if (
-        gameState.userMove &&
-        compareCoordinates(gameState.userMove, cellCoordinates)
+        gameState.userMove?.coordinates &&
+        compareCoordinates(gameState.userMove.coordinates, cellCoordinates)
       ) {
         return "move";
       }
+
+      return "enemyDefault";
     }
 
-    if (!gameState.isUserTurn && gameState.stage !== "setRabits") {
-      const enemyMoveByCoordinates = gameState.enemyMoves?.find((move) =>
-        compareCoordinates(cellCoordinates, move.coordinates)
-      );
-
-      if (enemyMoveByCoordinates?.isHit) {
+    if (!gameState.isUserTurn) {
+      if (enemyMoveByCoordinates?.isHit === true) {
         return "killedRabbit";
       }
 
-      // Miss
-      if (!enemyMoveByCoordinates?.isHit) {
+      if (enemyMoveByCoordinates?.isHit === false) {
         return "miss";
       }
-    }
 
-    return "default";
+      if (
+        gameState.userRabbitsPositions?.find((item) =>
+          compareCoordinates(item, cellCoordinates)
+        )
+      ) {
+        return "rabbit";
+      }
+
+      return "default";
+    }
   }, [
     gameState.enemyMoves,
     gameState.isUserTurn,

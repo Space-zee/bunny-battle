@@ -27,7 +27,7 @@ const GameStarted = () => {
 
     if (
       (gameState.userMove &&
-        compareCoordinates(gameState.userMove, coordinates)) ||
+        compareCoordinates(gameState.userMove.coordinates, coordinates)) ||
       (gameState.userMoves &&
         gameState.userMoves.find((move) =>
           compareCoordinates(move.coordinates, coordinates)
@@ -36,12 +36,15 @@ const GameStarted = () => {
       return;
     }
 
-    setGameState(prevState => ({ ...prevState, userMove: coordinates }));
+    setGameState((prevState) => ({
+      ...prevState,
+      userMove: { coordinates, isHit: null },
+    }));
   };
 
   const handleConfirmMove = () => {
-    console.log('handleConfirmMove')
-    console.log('gameState', gameState)
+    console.log("handleConfirmMove");
+    console.log("gameState", gameState);
     if (!gameState.userMove) {
       return;
     }
