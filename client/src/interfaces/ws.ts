@@ -16,7 +16,9 @@ export interface IJoinRoomReq {
 export interface IJoinRoomRes {
   bet: string;
   roomId: string;
+  username:string;
   opponentName: string;
+  rooCreator: number;
 }
 
 export interface IRabbitsSetReq {

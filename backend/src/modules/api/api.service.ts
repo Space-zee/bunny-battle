@@ -10,9 +10,9 @@ import { RoomEntity } from '../../../db/entities/room.entity';
 import { RoomStatus } from './enums';
 import * as path from 'path';
 
-const createWC = require('../../../assets/circom/create/create_js/witness_calculator.js');
-const createWasm = path.resolve(__dirname, '../../../assets/circom/create/create_js/create.wasm');
-const createZkey = path.resolve(__dirname, '../../../assets/circom/create/create_0001.zkey');
+const createWC = require('../../../assets/circom/board/board_js/witness_calculator.js');
+const createWasm = path.resolve(__dirname, '../../assets/circom/board/board_js/board.wasm');
+const createZkey = path.resolve(__dirname, '../../../assets/circom/board/board_0001.zkey');
 const snarkjs = require('snarkjs');
 const bigInt = require('big-integer');
 const WITNESS_FILE = '/tmp/witness';

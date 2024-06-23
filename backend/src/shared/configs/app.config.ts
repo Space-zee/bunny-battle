@@ -1,3 +1,3 @@
 export const appConfig = {
-  battleshipAddress: '0xa27f254a7ce960d119920Fdf09a6e9F8790922E5',
+  battleshipAddress: '0x5e41a547073762A7AA2c9a3741B83Fe7F6eb9F9f',
 };

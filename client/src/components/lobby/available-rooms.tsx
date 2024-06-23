@@ -39,8 +39,8 @@ const AvailableRooms = () => {
   }, []);
 
   const onSelectRoom = (roomId: string) => {
+    socket.emit('joinRoom', { roomId, telegramUserId: TgWebApp?.initDataUnsafe.user?.id });
     setGameState(initialGameState);
-    socket.emit("joinRoom", { roomId, telegramUserId: 1 });
     navigate(`/game/${roomId}?isReady=true`);
   };
 
@@ -50,7 +50,7 @@ const AvailableRooms = () => {
 
   return (
     <div className="flex flex-col gap-2 pb-[20px]">
-      {globalState.activeRooms.map((item) => (
+      {rooms.map((item) => (
         <div
           key={item.roomId}
           className="flex items-center justify-between bg-gn-900 rounded-xl p-2"
