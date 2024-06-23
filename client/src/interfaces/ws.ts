@@ -39,7 +39,13 @@ export interface IUserMoveReq {
 
 export interface IUserMoveRes {
   telegramUserId: number; // user who made move
-  lastMove: boolean | null; // so this is isHit by other user
+  lastMove:{
+    coordinates: {
+      x: number,
+      y: number
+    },
+    isHit:  boolean | null;
+  } // so this is isHit by other user
 }
 
 export interface IWinnerRes {

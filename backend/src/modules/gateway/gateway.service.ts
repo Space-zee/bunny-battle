@@ -169,9 +169,7 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     this.server.emit(`serverRabbitSet:${body.roomId}:${body.telegramUserId}`, res);
 
     if (!isRoomCreator) {
-      this.server.emit(`gameStarted:${body.roomId}`, {
-        isRoomCreator,
-      });
+      this.server.emit(`gameStarted:${body.roomId}`);
     }
   }
 
@@ -238,7 +236,13 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
       );
       await move.wait();
       this.server.emit(`serverUserMove:${body.roomId}`, {
-        lastMove: game.moves[game.moves.length - 1].isHit,
+        lastMove: {
+          coordinates: {
+            x: game.moves[game.moves.length - 1].x,
+            y: game.moves[game.moves.length - 1].y,
+          },
+          isHit: game.moves[game.moves.length - 1].isHit,
+        },
         telegramUserId: body.telegramUserId,
       });
     }

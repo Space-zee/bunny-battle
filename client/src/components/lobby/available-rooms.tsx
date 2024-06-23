@@ -50,7 +50,7 @@ const AvailableRooms = () => {
 
   return (
     <div className="flex flex-col gap-2 pb-[20px]">
-      {rooms.map((item) => (
+      {globalState.activeRooms.map((item) => (
         <div
           key={item.roomId}
           className="flex items-center justify-between bg-gn-900 rounded-xl p-2"

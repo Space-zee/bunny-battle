@@ -21,7 +21,7 @@ export interface GameState {
   prizePool: number;
   winner: string | null;
   enemyUsername: string | null;
-  // isUserRoom: boolean; // One who create is true
+   isUserRoom: boolean; // One who create is true
   userRabbitsPositions: Coordinates[] | null;
   userMove: Coordinates | null;
   userMoves: Move[];
