@@ -6,7 +6,10 @@ export const useGetUserWallet = (telegramUserId: string) => {
   return useQuery({
     queryKey: ["userWallet", telegramUserId],
     queryFn: () =>
-      httpClient.get<string>(apiPaths.getUserWallet(), { telegramUserId }),
+      httpClient.get<{ wallet: string; balance: string }>(
+        apiPaths.getUserWallet(),
+        { telegramUserId }
+      ),
     enabled: !!telegramUserId,
   });
 };

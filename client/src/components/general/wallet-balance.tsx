@@ -1,8 +1,7 @@
 import { useEffect, useMemo } from "react";
 
 import { Container } from "./container";
-import { useBalance } from "wagmi";
-import { formatAddress, formatEthBalance } from "@/utils/strings";
+import { formatAddress } from "@/utils/strings";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useCopyToClipboard } from "usehooks-ts";
@@ -10,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { useAtom, useSetAtom } from "jotai/index";
 import * as coreModels from "@/core/models";
 import { useGetUserWallet } from "@/fetch/useGetUserWallet";
-import { Address } from "viem";
 import { $doGlobalState } from "@/core/models/global";
 
 const CopyIcon = () => (
@@ -34,45 +32,29 @@ const WalletBalance = () => {
   const [TgButtons] = useAtom(coreModels.$tgButtons);
   const $doLoadWebApp = useSetAtom(coreModels.$doLoadWebApp);
 
-  const { data: walletAddress, isLoading: isUserWalletLoading } =
-    useGetUserWallet(WebApp?.initDataUnsafe.user?.id?.toString() ?? "");
-
-  const { data: walletBalance, isLoading: isWalletBalanceLoading } = useBalance(
-    {
-      address: (walletAddress?.data ?? "") as Address,
-      query: {
-        enabled: !!walletAddress?.data,
-      },
-    }
+  const { data: userWallet, isLoading: isUserWalletLoading } = useGetUserWallet(
+    WebApp?.initDataUnsafe.user?.id?.toString() ?? ""
   );
 
-  const formattedAmount = useMemo(() => {
-    if (walletBalance === undefined) {
-      return null;
-    }
-
-    return formatEthBalance(walletBalance.formatted);
-  }, [walletBalance]);
-
   const isWalletEmpty = useMemo(() => {
-    if (isWalletBalanceLoading || isUserWalletLoading) {
+    if (isUserWalletLoading) {
       return false;
     }
 
-    if (formattedAmount === "0") {
+    if (userWallet?.data?.balance === "0" || userWallet?.data?.balance === "") {
       return true;
     }
 
     return false;
-  }, [formattedAmount, isUserWalletLoading, isWalletBalanceLoading]);
+  }, [isUserWalletLoading, userWallet?.data?.balance]);
 
   const handleCopyAddress = async () => {
-    if (!walletAddress?.data) {
+    if (!userWallet?.data?.wallet) {
       return;
     }
 
     try {
-      await copy(walletAddress.data);
+      await copy(userWallet?.data?.wallet);
       toast("Address was copied");
     } catch (err) {
       console.log("Can not copy wallet to clipboard");
@@ -84,12 +66,12 @@ const WalletBalance = () => {
   };
 
   useEffect(() => {
-    if (globalState.wallet || !walletAddress?.data) {
+    if (globalState.wallet || !userWallet?.data?.wallet) {
       return;
     }
 
-    setGlobalState({ ...globalState, wallet: walletAddress.data });
-  }, [globalState, setGlobalState, walletAddress?.data]);
+    setGlobalState({ ...globalState, wallet: userWallet?.data?.wallet });
+  }, [globalState, setGlobalState, userWallet?.data?.wallet]);
 
   useEffect(() => {
     $doLoadWebApp();
@@ -105,7 +87,9 @@ const WalletBalance = () => {
     }
   }, [WebApp]);
 
-  if (walletAddress?.data === undefined || walletBalance === undefined) {
+  console.log(userWallet?.data);
+
+  if (userWallet?.data === undefined) {
     return;
   }
 
@@ -127,12 +111,12 @@ const WalletBalance = () => {
           <CopyIcon />
           <div className="flex items-center justify-center gap-2 w-full">
             <span className="text-wite font-semibold">
-              {formatAddress(walletAddress.data ?? "")}
+              {formatAddress(userWallet.data?.wallet ?? "")}
             </span>
             <span>⋅</span>
             <span className="font-semibold text-gn-500">My balance</span>
             <span className="text-white font-semibold">
-              {formattedAmount} ETH
+              {Number(userWallet.data?.balance).toFixed(4)} ETH
             </span>
           </div>
         </div>
