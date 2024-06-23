@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../../../db/entities/user.entity';
 import { Repository } from 'typeorm';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -45,6 +45,7 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
   private readonly logger = new Logger(GatewayService.name);
   private readonly url = `https://scroll-sepolia.blockpi.network/v1/rpc/64e6310d6e6234d8d05d9afcdc60a5ddab5a05a9`;
   private provider: ethers.providers.JsonRpcProvider;
+  private boardHash: any = {};
   @WebSocketServer()
   server: Server;
 
@@ -181,7 +182,6 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     //await tx
     //contract call getGame. If winner, call
 
-    console.log('USERMOVE', body);
     const userEntity = await this.userRepository.findOne({
       where: { telegramUserId: body.telegramUserId },
       relations: { wallets: true },
@@ -203,8 +203,8 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     if (!game.moves.length) {
       const move = await contract.submitMove(
         roomEntity.contractRoomId,
-        body.coordinates.x,
-        body.coordinates.y,
+        body.coordinates.x.toString(),
+        body.coordinates.y.toString(),
         emptyProof,
         false,
       );
@@ -217,24 +217,63 @@ export class GatewayService implements OnGatewayConnection, OnGatewayDisconnect 
     } else {
       const rabbit1 = body.userRabbits[0];
       const rabbit2 = body.userRabbits[1];
+      const roomOwner = await this.userRepository.findOne({ where: { id: roomEntity.userId } });
+      const boardHash =
+        Number(roomOwner.telegramUserId) === body.telegramUserId
+          ? game.player1Hash.toString()
+          : game.player2Hash.toString();
+
       const proof = await this.genMoveProof({
         // Public Inputs
-        boardHash: game.player2Hash.toString(),
+        boardHash: boardHash,
         guess: [game.moves[game.moves.length - 1].x, game.moves[game.moves.length - 1].y],
         // Private Inputs:
         nonce: userEntity.nonce,
         bunnies: [
-          [rabbit1.x, rabbit1.y],
-          [rabbit2.x, rabbit2.y],
+          [body.userRabbits[0].x, body.userRabbits[0].y],
+          [body.userRabbits[1].x, body.userRabbits[1].y],
         ],
       });
 
+      const compareCoordinates = (coordinates1: any, coordinates2: any) => {
+        return coordinates1.x === coordinates2.x && coordinates1.y === coordinates2.y;
+      };
+
+      const moveCoordinates = {
+        x: game.moves[game.moves.length - 1].x,
+        y: game.moves[game.moves.length - 1].y,
+      };
+
+      function containsPair(list: number[][], target: any): boolean {
+        for (const pair of list) {
+          if (
+            pair[0].toString() === target.x.toString() &&
+            pair[1].toString() === target.y.toString()
+          ) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      const wasRabbitHit = containsPair(
+        [
+          [body.userRabbits[0].x, body.userRabbits[0].y],
+          [body.userRabbits[1].x, body.userRabbits[1].y],
+        ],
+        moveCoordinates,
+      );
+
       const move = await contract.submitMove(
         roomEntity.contractRoomId,
-        body.coordinates.x,
-        body.coordinates.y,
-        proof,
-        game.moves[game.moves.length - 1].isHit,
+        body.coordinates.x.toString(),
+        body.coordinates.y.toString(),
+        proof.solidityProof,
+        wasRabbitHit,
+        {
+          gasLimit: BigNumber.from('600000'),
+        },
       );
       await move.wait();
       this.server.emit(`serverUserMove:${body.roomId}`, {

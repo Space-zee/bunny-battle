@@ -40,6 +40,8 @@ const GameStarted = () => {
       ...prevState,
       userMove: { coordinates, isHit: null },
     }));
+    console.log('coordinates', coordinates);
+    console.log('state', gameState)
   };
 
   const handleConfirmMove = () => {
@@ -50,7 +52,7 @@ const GameStarted = () => {
     }
 
     socket.emit("clientUserMove", {
-      coordinates: gameState.userMove,
+      coordinates: gameState.userMove.coordinates,
       userRabbits: gameState.userRabbitsPositions,
       telegramUserId: WebApp.initDataUnsafe.user?.id,
       roomId,
@@ -69,7 +71,7 @@ const GameStarted = () => {
         is_visible: true,
       });
     }
-  }, [gameState.isUserTurn]);
+  }, [gameState.isUserTurn, gameState.userMove]);
 
   return <Board onClick={handleSelectCell} />;
 };

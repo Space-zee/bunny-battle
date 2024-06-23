@@ -39,5 +39,5 @@ export interface IUserMoveReq {
 
 export interface ICoordinates {
   x: number;
-  y: string;
+  y: number;
 }

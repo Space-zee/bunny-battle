@@ -108,6 +108,7 @@ const Game = () => {
         if (currentUserTelegramId === undefined) {
           return;
         }
+        console.log(gameState)
 
         // if user made this move
         if (currentUserTelegramId === telegramUserId) {
