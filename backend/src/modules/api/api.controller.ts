@@ -33,7 +33,10 @@ export class ApiController {
   }
 
   @Get('getUserWallet')
-  public async getUserWallet(@Query() query: any, @Req() request: Request): Promise<string> {
+  public async getUserWallet(
+    @Query() query: any,
+    @Req() request: Request,
+  ): Promise<{ wallet: string; balance: string }> {
     try {
       this.logger.log('getActiveRooms call');
 

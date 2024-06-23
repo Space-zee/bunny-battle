@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import { RoomEntity } from '../../../db/entities/room.entity';
 import { RoomStatus } from './enums';
 import * as path from 'path';
+import { formatEther } from 'ethers/lib/utils';
 
 const createWC = require('../../../assets/circom/board/board_js/witness_calculator.js');
 const createWasm = path.resolve(__dirname, '../../assets/circom/board/board_js/board.wasm');
@@ -20,13 +21,17 @@ const WITNESS_FILE = '/tmp/witness';
 @Injectable()
 export class ApiService {
   private readonly logger = new Logger(ApiService.name);
+  private readonly url = `https://scroll-sepolia.blockpi.network/v1/rpc/64e6310d6e6234d8d05d9afcdc60a5ddab5a05a9`;
+  private provider: ethers.providers.JsonRpcProvider;
 
   constructor(
     @InjectRepository(RoomEntity)
     private readonly roomRepository: Repository<RoomEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-  ) {}
+  ) {
+    this.provider = new ethers.providers.JsonRpcProvider(this.url);
+  }
 
   public async getBattles(): Promise<IGetActiveRoomsRes[]> {
     const roomEntity = await this.roomRepository.find({
@@ -43,13 +48,17 @@ export class ApiService {
     });
   }
 
-  public async getWallet(telegramUserId: number): Promise<string> {
+  public async getWallet(telegramUserId: number): Promise<{ wallet: string; balance: string }> {
     const userEntity = await this.userRepository.findOne({
       where: { telegramUserId },
       relations: { wallets: true },
     });
+    const balance = await this.provider.getBalance(userEntity.wallets[0].address);
 
-    return userEntity.wallets[0].address;
+    return {
+      balance: formatEther(balance),
+      wallet: userEntity.wallets[0].address,
+    };
   }
 
   public async createGame() {
