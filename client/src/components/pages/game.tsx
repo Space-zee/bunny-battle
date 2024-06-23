@@ -105,59 +105,70 @@ const Game = () => {
 
         console.log("lastMove", lastMove);
         console.log("currentUserTelegramId", currentUserTelegramId);
+
         if (currentUserTelegramId === undefined) {
           return;
         }
-        console.log(gameState)
+        console.log(gameState);
 
         // if user made this move
-        if (currentUserTelegramId === telegramUserId) {
+        if (currentUserTelegramId !== telegramUserId) {
+          // if enemy, is a user who's turn it was than he made turn (move) and he walidated our move (lastMove if it exist)
+          // In that case
+          // 1) add lastTurn as our move
+
+          setGameState((prevState) => {
+            const userMoves = [...prevState.userMoves];
+            // const enemyMoves = [...prevState.enemyMoves];
+
+            // if (prevState.userMove) {
+            //   userMoves.push(prevState.userMove);
+            // }
+
+            if (lastMove) {
+              userMoves.push(lastMove);
+            }
+
+            return {
+              ...prevState,
+              // enemyMoves,
+              userMoves,
+              userMove: null,
+              isUserTurn: true,
+            };
+          });
+        } else {
+          // if our username is the same as sender, than the returned move of other user
           toast("Move transaction confirmed");
 
-          // then we swap turns and set "current" move as user last move
-          const userMoves = [...gameState.userMoves];
+          // If I made move then
+          /*
+            1) move userMove to last userMoves
+            2) add enemy move from returned enemy move
+          */
 
-          if (lastMove) {
-            userMoves.push(lastMove);
-          }
-
-          setGameState((prevState) => ({
-            ...prevState,
-            isUserTurn: false,
-            userMove: null,
-            userMoves,
-          }));
-        } else {
           // if opponent make their move that means opponent verified our last move, ie if we hit him in our last move
-          const userMoves = [...gameState.userMoves];
-          const enemyMoves = [...gameState.enemyMoves];
 
-          if (lastMove) {
-            enemyMoves.push(lastMove);
-          }
+          setGameState((prevState) => {
+            const userMoves = [...prevState.userMoves];
+            const enemyMoves = [...prevState.enemyMoves];
 
-          // if it's first move - skip
-          if (lastMove === null) {
-            setGameState((prevState) => ({
+            if (prevState.userMove) {
+              userMoves.push(prevState.userMove);
+            }
+
+            if (lastMove) {
+              enemyMoves.push(lastMove);
+            }
+
+            return {
               ...prevState,
               enemyMoves,
-              isUserTurn: true,
-            }));
-            return;
-          } else {
-            const lastUserMove = {
-              ...userMoves[gameState.userMoves.length - 1],
-            };
-            lastUserMove.isHit = lastMove.isHit;
-            userMoves[gameState.userMoves.length - 1] = lastUserMove;
-            // save move result
-            setGameState((prevState) => ({
-              ...prevState,
               userMoves,
-              enemyMoves,
-              isUserTurn: true,
-            }));
-          }
+              userMove: null,
+              isUserTurn: false,
+            };
+          });
         }
       }
     );
