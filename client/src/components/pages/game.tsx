@@ -40,8 +40,10 @@ const Game = () => {
         color: "#E478FA",
         text: "Confirm",
         text_color: "#000000",
-        is_active: !!gameState.enemyUsername && gameState.userRabbitsPositions?.length === 2,
-        is_visible: true
+        is_active:
+          !!gameState.enemyUsername &&
+          gameState.userRabbitsPositions?.length === 2,
+        is_visible: true,
       });
     }
   }, [WebApp]);
@@ -51,11 +53,12 @@ const Game = () => {
       color: "#E478FA",
       text: "Confirm",
       text_color: "#000000",
-      is_active: !!gameState.enemyUsername && gameState.userRabbitsPositions?.length === 2,
-      is_visible: true
+      is_active:
+        !!gameState.enemyUsername &&
+        gameState.userRabbitsPositions?.length === 2,
+      is_visible: true,
     });
   }, [gameState.enemyUsername, gameState.userRabbitsPositions]);
-
 
   useEffect(() => {
     socket.connect();
@@ -66,27 +69,31 @@ const Game = () => {
     });
 
     // fire when socked is disconnected
-    socket.on(`readyForBattle:${roomId}`, (body: IJoinRoomRes) => { // fire when socked is disconnected
+    socket.on(`readyForBattle:${roomId}`, (body: IJoinRoomRes) => {
+      // fire when socked is disconnected
       const prizePool = Number(body.bet) + Number(body.bet) * 0.99;
-      const enemyUsername = WebApp?.initDataUnsafe.user?.username === body.username ? body.opponentName : body.username;
-      setGameState(prevState => ({ ...prevState, enemyUsername, prizePool }));
+      const enemyUsername =
+        WebApp?.initDataUnsafe.user?.username === body.username
+          ? body.opponentName
+          : body.username;
+      setGameState((prevState) => ({ ...prevState, enemyUsername, prizePool }));
     });
 
-    socket.on(`serverRabbitSet:${roomId}:${WebApp?.initDataUnsafe.user?.id}`, (body: {
-      contractRoomId: number,
-      isRoomCreator: boolean
-    }) => {
-      console.log("body", body);
-      TgButtons.mainButton.hideProgress()
-      setGameState(prevState => ({
-        ...prevState,
-        gameId: body.contractRoomId,
-        isUserRoom: body.isRoomCreator
-      }));
-    });
+    socket.on(
+      `serverRabbitSet:${roomId}:${WebApp?.initDataUnsafe.user?.id}`,
+      (body: { contractRoomId: number; isRoomCreator: boolean }) => {
+        console.log("body", body);
+        TgButtons.mainButton.hideProgress();
+        setGameState((prevState) => ({
+          ...prevState,
+          gameId: body.contractRoomId,
+          isUserRoom: body.isRoomCreator,
+        }));
+      }
+    );
 
     socket.on(`gameStarted:${roomId}`, () => {
-      setGameState(prevState => ({ ...prevState, stage: "gameStarted" }));
+      setGameState((prevState) => ({ ...prevState, stage: "gameStarted" }));
     });
 
     socket.on(
@@ -96,8 +103,8 @@ const Game = () => {
 
         const currentUserTelegramId = WebApp.initDataUnsafe.user?.id;
 
-        console.log('lastMove', lastMove)
-        console.log('currentUserTelegramId', currentUserTelegramId)
+        console.log("lastMove", lastMove);
+        console.log("currentUserTelegramId", currentUserTelegramId);
         if (currentUserTelegramId === undefined) {
           return;
         }
@@ -107,18 +114,17 @@ const Game = () => {
           toast("Move transaction confirmed");
 
           // then we swap turns and set "current" move as user last move
-          const lastUserMove = { ...gameState.userMove } as Coordinates;
           const userMoves = [...gameState.userMoves];
 
-          if (lastUserMove) {
-            userMoves.push({ coordinates: lastUserMove, isHit: false });
+          if (lastMove) {
+            userMoves.push(lastMove);
           }
 
-          setGameState(prevState => ({ ...prevState,
-            ...gameState,
+          setGameState((prevState) => ({
+            ...prevState,
             isUserTurn: false,
             userMove: null,
-            userMoves
+            userMoves,
           }));
         } else {
           // if opponent make their move that means opponent verified our last move, ie if we hit him in our last move
@@ -130,7 +136,12 @@ const Game = () => {
           }
 
           // if it's first move - skip
-          if (userMoves.length === 0 || lastMove === null) {
+          if (lastMove === null) {
+            setGameState((prevState) => ({
+              ...prevState,
+              enemyMoves,
+              isUserTurn: true,
+            }));
             return;
           } else {
             const lastUserMove = {
@@ -139,14 +150,19 @@ const Game = () => {
             lastUserMove.isHit = lastMove.isHit;
             userMoves[gameState.userMoves.length - 1] = lastUserMove;
             // save move result
-            setGameState(prevState => ({ ...prevState,  userMoves, enemyMoves, isUserTurn: true }));
+            setGameState((prevState) => ({
+              ...prevState,
+              userMoves,
+              enemyMoves,
+              isUserTurn: true,
+            }));
           }
         }
       }
     );
 
     socket.on(`winner:${roomId}`, ({ address }: IWinnerRes) => {
-      setGameState(prevState => ({ ...prevState,  winner: address }));
+      setGameState((prevState) => ({ ...prevState, winner: address }));
       navigate(`/game-result/${roomId}`);
     });
 
@@ -185,18 +201,23 @@ const Game = () => {
     const req: IRabbitsSetReq = {
       roomId,
       rabbits: gameState.userRabbitsPositions as [],
-      telegramUserId: WebApp.initDataUnsafe.user!.id as number
+      telegramUserId: WebApp.initDataUnsafe.user!.id as number,
     };
     socket.connect();
     socket.emit("clientRabbitsSet", req);
-    TgButtons.mainButton.showProgress()
+    TgButtons.mainButton.showProgress();
   };
 
   return (
     <Container className="flex flex-col items-center">
       <PageTitle>{pageTitle}</PageTitle>
-      <GameHeader prizePool={gameState.prizePool.toString()} name={WebApp?.initDataUnsafe.user?.username}
-                  opponentName={gameState.enemyUsername ? gameState.enemyUsername : "Opponent"} />
+      <GameHeader
+        prizePool={gameState.prizePool.toString()}
+        name={WebApp?.initDataUnsafe.user?.username}
+        opponentName={
+          gameState.enemyUsername ? gameState.enemyUsername : "Opponent"
+        }
+      />
       <div className="w-full flex flex-col items-center justify-cente mt-5 gap-2">
         <TurnInfo />
         {renderBoard}

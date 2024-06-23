@@ -62,7 +62,7 @@ const BoardCell = ({ index, onClick }: BoardCellProps) => {
       }
     }
 
-    // Enemy turn
+    // User turn
     if (gameState.isUserTurn && gameState.stage !== "setRabits") {
       if (
         gameState.userMove &&
@@ -70,12 +70,26 @@ const BoardCell = ({ index, onClick }: BoardCellProps) => {
       ) {
         return "move";
       }
+    }
 
-      return "enemyDefault";
+    if (!gameState.isUserTurn && gameState.stage !== "setRabits") {
+      const enemyMoveByCoordinates = gameState.enemyMoves?.find((move) =>
+        compareCoordinates(cellCoordinates, move.coordinates)
+      );
+
+      if (enemyMoveByCoordinates?.isHit) {
+        return "killedRabbit";
+      }
+
+      // Miss
+      if (!enemyMoveByCoordinates?.isHit) {
+        return "miss";
+      }
     }
 
     return "default";
   }, [
+    gameState.enemyMoves,
     gameState.isUserTurn,
     gameState.stage,
     gameState.userMove,
